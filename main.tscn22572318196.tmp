@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://cuhpwkg2m1t60"]
+
+[ext_resource type="Texture2D" uid="uid://bj5xigdm42cst" path="res://Background.png" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://c5yxqvrhennwj" path="res://card_manager.gd" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://2nglv0jx4lil" path="res://ui.tscn" id="3_h2yge"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
+size = Vector2(125.892, 309)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("2_h2yge")
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(959, 556)
+scale = Vector2(0.998233, 1)
+texture = ExtResource("1_ig7tw")
+
+[node name="DeckSlot" type="Node2D" parent="."]
+position = Vector2(280, 545)
+scale = Vector2(-1.541, 1)
+
+[node name="SlotImage" type="Sprite2D" parent="DeckSlot"]
+
+[node name="Area2D" type="Area2D" parent="DeckSlot"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeckSlot/Area2D"]
+position = Vector2(1.9468, -4)
+scale = Vector2(1, 1)
+shape = SubResource("RectangleShape2D_h2yge")
+
+[node name="OffScreenStartMarker" type="Marker2D" parent="."]
+position = Vector2(-549, -146)
+
+[node name="DeckPileMarker" type="Marker2D" parent="."]
+position = Vector2(278, 544)
+scale = Vector2(0.939278, 0.244732)
+
+[node name="UI" parent="." instance=ExtResource("3_h2yge")]
