@@ -3,147 +3,213 @@ extends Node2D
 const SUITS = ["clubs", "diamonds", "hearts", "spades"]
 const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"]
 var deck: Array = []
-
-#dealer counts as a player for now.
-var current_players = 2 
-
+var current_players = 2 #DEALER counts as a player.
+var game_over: bool = false
 const CardScene = preload("res://card.tscn")
-
-#const PLAYER_HAND_Y_POSITION = 900 #???
-#const DEALER_HAND_Y_POSITION = 200 #???
-#const CARD_WIDTH = 200
-#const CARD_SPACING = 80
 const COLLISION_MASK_CARD = 1
+
+var player_hand_score
+var dealer_hand_score
+var player_score: int = 0
+var dealer_score: int = 0
 
 @onready var screen_size = get_viewport_rect().size
 @onready var deck_position_marker: Marker2D = $DeckPileMarker
 @onready var offscreen_deal_marker: Marker2D = $OffScreenStartMarker
 @onready var new_deal_button: Button = $UI/Menu/NewDeal_button
 @onready var deal_button: Button = $UI/Menu/Deal_button
-@onready var shuffle_button: Button = $UI/Menu/Shuffle_button
+@onready var hit_button: Button = $UI/Menu/Hit_button
+@onready var stay_button: Button = $UI/Menu/Stay_button
+@onready var score_button: Button = $UI/Menu/ScoreButton
 @onready var card_holder: Node2D = $CardHolder
 @onready var player_hand_parent: Node2D = $PlayerHand
 @onready var dealer_hand_parent: Node2D = $DealerHand
 @onready var player_score_label: Label = $UI/PlayerScoreLabel
 @onready var dealer_score_label: Label = $UI/DealerScoreLabel
+@onready var player_hand_score_label: Label = $UI/PlayerHandScoreLabel
+@onready var dealer_hand_score_label: Label = $UI/DealerHandScoreLabel
 @onready var animation_controller = $AnimationController # Get a reference
 
 func _ready() -> void:
 	new_deal_button.pressed.connect(setup_deck)	
-	deal_button.pressed.connect(deal_cards)
+	deal_button.pressed.connect(deal_hands)
+	hit_button.pressed.connect(hit_pressed)
+	score_button.pressed.connect(score_pressed)
+	stay_button.pressed.connect(stay_pressed)
+	
+	update_scoreboard()
 	position_score_labels()
 	
 func _process(delta: float) -> void:
-		#var mouse_pos = get_global_mouse_position()
-		##constrain card POS so it can't go off the screen and be dropped and lost.
-		#card_being_dragged.position = Vector2(clamp(mouse_pos.x, 0, screen_size.x), clamp(mouse_pos.y, 0, screen_size.y))	
 	pass
 
-func dealer_turn():
-	pass
-
-func update_scores():
-	var player_score = calculate_hand_value(player_hand_parent)
+func update_scoreboard():
 	player_score_label.text = "Player: " + str(player_score)
-	
-	var dealer_score = calculate_hand_value(dealer_hand_parent)
 	dealer_score_label.text = "Dealer: " + str(dealer_score)
 
+func play_dealer_turn():
+	#flip hole card and calculate score.
+	var hole_card = dealer_hand_parent.get_child(0)
+	if not hole_card.is_face_up:
+		var flip_tween = animation_controller.animate_flip(hole_card)
+		await flip_tween.finished
+		update_scores() # Update the score display now that the card is visible
+	# Add a small delay for dramatic effect
+	await get_tree().create_timer(0.5).timeout
+# 2. Loop: Dealer must hit if score is 16 or less
+	var dealer_score = calculate_hand_value(dealer_hand_parent)
+	if dealer_hand_score < player_hand_score:
+		while dealer_score < 17:
+			print("Dealer score is %d. Hitting..." % dealer_score)
+			await get_tree().create_timer(1.0).timeout # Pause so it's not instant
+			
+			await deal_card(dealer_hand_parent, true)
+			update_scores()
+			dealer_score = calculate_hand_value(dealer_hand_parent) # Recalculate score for the loop condition
+	
+	# 3. The dealer's turn is over. Determine the winner.
+	print("Dealer stands with %d." % dealer_score)
+	await get_tree().create_timer(0.5).timeout
+	determine_winner()
+	deal_button.disabled = false
+
+func determine_winner():
+	var player_hand = calculate_hand_value(player_hand_parent)
+	var dealer_hand = calculate_hand_value(dealer_hand_parent)	
+	print("Final Scores -> Player: %d, Dealer: %d" % [player_score, dealer_score])	
+	if player_hand > 21:
+		dealer_score = dealer_score + 1
+		print("Result: Player busts! Dealer wins.")
+	elif dealer_hand > 21:
+		player_score = player_score + 1
+		print("Result: Dealer busts! Player wins.")
+	elif player_hand > dealer_hand:
+		player_score = player_score + 1
+		print("Result: Player wins!")
+	elif dealer_hand > player_hand:
+		dealer_score = dealer_score + 1
+		print("Result: Dealer wins.")
+	else:
+		print("Result: It's a push (tie).")	
+	# Re-enable the new deal button for the next round
+	update_scoreboard()
+	new_deal_button.disabled = false
+
+func stay_pressed():
+	hit_button.disabled = true
+	stay_button.disabled = true
+	await play_dealer_turn()
+
+func hit_pressed():
+	await deal_card(player_hand_parent, true)
+	update_scores()
+	
+	if player_hand_score > 21:
+		print("Player Busts!")
+		stay_pressed()
+	
+func score_pressed():
+	update_scores()
+	
+func update_scores(hand = null):
+	print("updateing scores")
+	player_hand_score = calculate_hand_value(player_hand_parent)
+	player_hand_score_label.text = "Player: " + str(player_hand_score)
+	
+	dealer_hand_score = calculate_hand_value(dealer_hand_parent)
+	dealer_hand_score_label.text = "Dealer: " + str(dealer_hand_score)	
+
 func position_score_labels():
-	player_score_label.position = Vector2(player_hand_parent.position.x, player_hand_parent.position.y - 185)
-	dealer_score_label.position = Vector2(dealer_hand_parent.position.x, dealer_hand_parent.position.y + 160)
+	player_hand_score_label.position = Vector2(player_hand_parent.position.x, player_hand_parent.position.y - 185)
+	dealer_hand_score_label.position = Vector2(dealer_hand_parent.position.x, dealer_hand_parent.position.y + 160)
 
 func calculate_hand_value(hand_parent: Node2D) -> int:
 	var total_value = 0
 	var ace_count = 0
-	
+
 	for card in hand_parent.get_children():
 		if card.is_face_up:
 			total_value += card.value
 			if card.is_ace():
 				ace_count += 1
-	
 	while total_value > 21 and ace_count > 0:
 		total_value -= 10
 		ace_count -= 1
-	
 	return total_value
 
-func deal_cards():	
+func clear_round():
+	for card in player_hand_parent.get_children(): card.queue_free()
+	for card in dealer_hand_parent.get_children(): card.queue_free()
+	calculate_hand_value(player_hand_parent)
+	calculate_hand_value(dealer_hand_parent)
+	update_scores()
+	
+
+func deal_hands():	
+	#clear cards first and scores, like from the previous hand...
+	
+	clear_round()
+	
+	
+	deal_button.disabled = true
 	#set player for first card to be dealt
 	var players_turn = true
 	for i in current_players * 2:		
 		if card_holder.get_child_count() == 0:
 			print("Deck is empty")
 			break
-		var top_card: Node2D = card_holder.get_child(0)
 		
 		if players_turn:
-			top_card.reparent(player_hand_parent)
-			await animation_controller.animate_deal_to_hand(top_card, player_hand_parent, true). finished
+			await deal_card(player_hand_parent, true)
 		else:
 			var is_first_card = (dealer_hand_parent.get_child_count() == 0)
-			top_card.reparent(dealer_hand_parent)
-			# Tell the choreographer to handle the visuals, passing face up/down state
 			var show_face = not is_first_card
-			await animation_controller.animate_deal_to_hand(top_card, dealer_hand_parent, show_face).finished
-			
+			await deal_card(dealer_hand_parent, show_face)			
 		players_turn = !players_turn
 	update_scores()
-		
-			#top_card.set_is_face_up(true, false) # Instantly face up
-			#add_card_to_hand(top_card, player_hand_parent)
-		#else:
-			##check if it's the dealers first card, if so face down, if not face up
-			#var is_first_card = (dealer_hand_parent.get_child_count() == 0)
-			#print("dealers turn")
-			#print("topcard: ")
-			#print(top_card)
-			#if is_first_card:
-				#top_card.set_is_face_up(false, false)
-			#else:
-				#top_card.set_is_face_up(true, false)
-			#add_card_to_hand(top_card, dealer_hand_parent)
-		#players_turn = !players_turn
+	hit_button.disabled = false
+	stay_button.disabled = false
 	
-#func add_card_to_hand(card: Node2D, hand_parent: Node2D):
-	#var initial_global_pos = card.global_position	
-	#card.reparent(hand_parent)	
-	#card.global_position = initial_global_pos	
-	#update_hand_layout(hand_parent)
-	#await get_tree().create_timer(0.4).timeout # Waits for 0.4 seconds
-	#update_scores()
-
-#func update_hand_layout(hand_parent: Node2D):
-	#var cards = hand_parent.get_children()
-	#var num_cards = cards.size()	
-	#if num_cards == 0:
-		#return
-	#var total_hand_width = (num_cards - 1) * CARD_SPACING	
-	#var start_x = -total_hand_width / 2.0
-	#
-	#for i in range(num_cards):
-		#var card = cards[i]
-		#var target_pos = Vector2(start_x + i * CARD_SPACING, 0)
-		#animate_card_to_position(card, target_pos)
-#
-#func animate_card_to_position(card: Node2D, new_local_position: Vector2):
-	#var tween = create_tween().set_parallel() # Parallel allows animating multiple properties at once
-	#tween.tween_property(card, "position", new_local_position, 0.3).set_trans(Tween.TRANS_SINE)
-	#tween.tween_property(card, "rotation_degrees", 0, 0.3)
-	
+func deal_card(hand_parent: Node2D, should_be_face_up: bool):
+	if card_holder.get_child_count() == 0:
+		print("Deck empty")
+		return		
+	var top_card: Node2D = card_holder.get_child(0)
+	top_card.reparent(hand_parent)	
+	var move_tween = animation_controller.animate_deal_to_hand(top_card, hand_parent)	
+	if should_be_face_up and not top_card.is_face_up:
+		var flip_tween = animation_controller.animate_flip(top_card)
+		await flip_tween.finished  
+	await move_tween.finished
 	
 func setup_deck():
-	#clears cards and decks, 
-	#creates a shuffled deck, which is the children of CardHolder, an array, 0 is the TOP card.
-	print("setup deck running")
-	#Clear any existing cards from the table first
-	for card in get_tree().get_nodes_in_group("cards"):
-		card.queue_free()
+	new_deal_button.disabled = true
+	deal_button.disabled = true
+	# Clear any existing cards
+	for card in card_holder.get_children(): card.queue_free()
+	for card in player_hand_parent.get_children(): card.queue_free()
+	for card in dealer_hand_parent.get_children(): card.queue_free()
+	
 	create_deck_array() 
-	shuffle_deck_array()	
-	create_deck()
+	shuffle_deck_array()
+	await create_deck_visuals()	
+	deal_button.disabled = false
 		
+func create_deck_visuals() -> void:
+	print("Creating deck visuals...")
+	var last_tween: Tween = null	
+	for i in range(deck.size()):
+		var new_card = CardScene.instantiate()
+		card_holder.add_child(new_card)
+		new_card.initialize(deck[i].suit, deck[i].rank)		
+		new_card.global_position = offscreen_deal_marker.global_position
+		new_card.z_index = i	
+		var current_tween = animation_controller.animate_stack_in_deck(new_card, deck_position_marker, i)		
+		if i == deck.size() - 1:
+			last_tween = current_tween	
+	if last_tween:
+		await last_tween.finished
+
 func create_deck_array():
 	deck.clear()
 	for suit in SUITS:
@@ -157,39 +223,6 @@ func create_deck_array():
 func shuffle_deck_array():
 	for n in 8:
 		deck.shuffle()
-		print("deck shuffled %d time, " % n)
-		#print(deck)
-		
-func create_deck():
-	print("creating deck")
-	for i in range(deck.size()):
-		#var card_data = deck.pop_front()
-		var new_card = CardScene.instantiate()
-		#add_child(new_card)
-		card_holder.add_child(new_card)
-		#new_card.initialize(card_data.suit, card_data.rank)
-		new_card.initialize(deck[i].suit, deck[i].rank)
-		#bogus tweening>
-		#new_card.global_position = offscreen_deal_marker.global_position
-		#new_card.z_index = i
-		#var target_position = deck_position_marker.global_position + Vector2(0, i * -0.2)
-		#
-		#var tween = create_tween()
-		#tween.set_trans(Tween.TRANS_CUBIC)
-		#tween.set_ease(Tween.EASE_OUT)
-		#tween.tween_property(new_card, "global_position", target_position, 0.2)
-		#animate_card_to_position(new_card, deck_position_marker.position)
-		print("new card: ")
-		print(new_card)
-		print("deck_position_marker:")
-		print( deck_position_marker)
-		await animation_controller.animate_initial_deck(new_card, deck_position_marker).finished
-	
-	#var new_deck = card_holder.get_children()
-	#print(new_deck.size())
-	#print(new_deck)
-	#var z_card = get_card_with_highest_z_index(new_deck)	
-	#print(z_card)
 
 func get_card_with_highest_z_index(cards):
 	#Assume first card has highest z index
