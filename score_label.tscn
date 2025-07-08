@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://wgt63db1jkjm"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_0xm2m"]
+font_size = 24
+
+[node name="PlayerScoreLabel" type="Label"]
+offset_left = 613.0
+offset_top = 192.0
+offset_right = 653.0
+offset_bottom = 226.0
+label_settings = SubResource("LabelSettings_0xm2m")

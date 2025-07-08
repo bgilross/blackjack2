@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bj5xigdm42cst" path="res://Background.png" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://c5yxqvrhennwj" path="res://card_manager.gd" id="2_h2yge"]
-[ext_resource type="PackedScene" uid="uid://2nglv0jx4lil" path="res://ui.tscn" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://wgt63db1jkjm" path="res://score_label.tscn" id="3_h2yge"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
 size = Vector2(125.892, 309)
@@ -11,7 +11,7 @@ size = Vector2(125.892, 309)
 script = ExtResource("2_h2yge")
 
 [node name="Background" type="Sprite2D" parent="."]
-position = Vector2(954, 561)
+position = Vector2(935, 569)
 scale = Vector2(0.998233, 1)
 texture = ExtResource("1_ig7tw")
 
@@ -28,7 +28,62 @@ position = Vector2(1.9468, -4)
 scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_h2yge")
 
-[node name="UI" parent="." instance=ExtResource("3_h2yge")]
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Menu" type="Node2D" parent="UI"]
+position = Vector2(2, 0)
+
+[node name="NewDeal_button" type="Button" parent="UI/Menu"]
+offset_left = 23.0
+offset_top = 19.0
+offset_right = 105.0
+offset_bottom = 50.0
+scale = Vector2(2.55537, 2.90228)
+text = "New Deal
+"
+
+[node name="Deal_button" type="Button" parent="UI/Menu"]
+offset_left = 25.0
+offset_top = 220.0
+offset_right = 107.0
+offset_bottom = 251.0
+scale = Vector2(2.55537, 2.90228)
+text = "Deal
+"
+
+[node name="Shuffle_button" type="Button" parent="UI/Menu"]
+offset_left = 25.0
+offset_top = 116.0
+offset_right = 107.0
+offset_bottom = 147.0
+scale = Vector2(2.55537, 2.90228)
+text = "Shuffle"
+
+[node name="Hit_button" type="Button" parent="UI/Menu"]
+offset_left = 669.0
+offset_top = 922.0
+offset_right = 751.0
+offset_bottom = 953.0
+scale = Vector2(2.55537, 2.90228)
+text = "Hit
+"
+
+[node name="Stay_button" type="Button" parent="UI/Menu"]
+offset_left = 951.0
+offset_top = 924.0
+offset_right = 1033.0
+offset_bottom = 955.0
+scale = Vector2(2.55537, 2.90228)
+text = "Stay
+"
+
+[node name="PlayerScoreLabel" parent="UI" instance=ExtResource("3_h2yge")]
+
+[node name="DealerScoreLabel" parent="UI" instance=ExtResource("3_h2yge")]
+offset_left = 1911.04
+offset_top = -38.7473
+offset_right = 1951.04
+offset_bottom = -4.7473
 
 [node name="PlayerHand" type="Node2D" parent="."]
 position = Vector2(928, 763)
