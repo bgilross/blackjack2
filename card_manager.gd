@@ -58,7 +58,7 @@ func play_dealer_turn():
 	await get_tree().create_timer(0.5).timeout
 # 2. Loop: Dealer must hit if score is 16 or less
 	var dealer_score = calculate_hand_value(dealer_hand_parent)
-	if dealer_hand_score < player_hand_score:
+	if dealer_hand_score < player_hand_score && player_hand_score < 21:
 		while dealer_score < 17:
 			print("Dealer score is %d. Hitting..." % dealer_score)
 			await get_tree().create_timer(1.0).timeout # Pause so it's not instant
@@ -140,15 +140,15 @@ func calculate_hand_value(hand_parent: Node2D) -> int:
 func clear_round():
 	for card in player_hand_parent.get_children(): card.queue_free()
 	for card in dealer_hand_parent.get_children(): card.queue_free()
-	calculate_hand_value(player_hand_parent)
-	calculate_hand_value(dealer_hand_parent)
-	update_scores()
-	
+	player_hand_score = 0
+	dealer_hand_score = 0
+	player_hand_score_label.text = "Player: " + str(player_hand_score)
+	dealer_hand_score_label.text = "Dealer: " + str(dealer_hand_score)	
 
 func deal_hands():	
 	#clear cards first and scores, like from the previous hand...
 	
-	clear_round()
+	await clear_round()
 	
 	
 	deal_button.disabled = true
