@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cuhpwkg2m1t60"]
+[gd_scene load_steps=6 format=3 uid="uid://cuhpwkg2m1t60"]
 
 [ext_resource type="Texture2D" uid="uid://bj5xigdm42cst" path="res://Background.png" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://c5yxqvrhennwj" path="res://card_manager.gd" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://wgt63db1jkjm" path="res://score_label.tscn" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://c87k7bnrtcnjc" path="res://AnimationController.gd" id="4_1bvp3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
 size = Vector2(125.892, 309)
@@ -106,3 +107,6 @@ scale = Vector2(0.939278, 0.244732)
 
 [node name="Node2D" type="Node2D" parent="."]
 position = Vector2(1273, 866)
+
+[node name="AnimationController" type="Node" parent="."]
+script = ExtResource("4_1bvp3")

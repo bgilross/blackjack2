@@ -9,10 +9,10 @@ var current_players = 2
 
 const CardScene = preload("res://card.tscn")
 
-const PLAYER_HAND_Y_POSITION = 900 #???
-const DEALER_HAND_Y_POSITION = 200 #???
-const CARD_WIDTH = 200
-const CARD_SPACING = 80
+#const PLAYER_HAND_Y_POSITION = 900 #???
+#const DEALER_HAND_Y_POSITION = 200 #???
+#const CARD_WIDTH = 200
+#const CARD_SPACING = 80
 const COLLISION_MASK_CARD = 1
 
 @onready var screen_size = get_viewport_rect().size
@@ -26,6 +26,7 @@ const COLLISION_MASK_CARD = 1
 @onready var dealer_hand_parent: Node2D = $DealerHand
 @onready var player_score_label: Label = $UI/PlayerScoreLabel
 @onready var dealer_score_label: Label = $UI/DealerScoreLabel
+@onready var animation_controller = $AnimationController # Get a reference
 
 func _ready() -> void:
 	new_deal_button.pressed.connect(setup_deck)	
@@ -39,7 +40,7 @@ func _process(delta: float) -> void:
 	pass
 
 func dealer_turn():
-	
+	pass
 
 func update_scores():
 	var player_score = calculate_hand_value(player_hand_parent)
@@ -78,49 +79,59 @@ func deal_cards():
 		var top_card: Node2D = card_holder.get_child(0)
 		
 		if players_turn:
-			print("players turn")
-			print("topcard: ")
-			print(top_card)
-			top_card.set_is_face_up(true, false) # Instantly face up
-			add_card_to_hand(top_card, player_hand_parent)
+			top_card.reparent(player_hand_parent)
+			await animation_controller.animate_deal_to_hand(top_card, player_hand_parent, true). finished
 		else:
-			#check if it's the dealers first card, if so face down, if not face up
 			var is_first_card = (dealer_hand_parent.get_child_count() == 0)
-			print("dealers turn")
-			print("topcard: ")
-			print(top_card)
-			if is_first_card:
-				top_card.set_is_face_up(false, false)
-			else:
-				top_card.set_is_face_up(true, false)
-			add_card_to_hand(top_card, dealer_hand_parent)
+			top_card.reparent(dealer_hand_parent)
+			# Tell the choreographer to handle the visuals, passing face up/down state
+			var show_face = not is_first_card
+			await animation_controller.animate_deal_to_hand(top_card, dealer_hand_parent, show_face).finished
+			
 		players_turn = !players_turn
-	
-func add_card_to_hand(card: Node2D, hand_parent: Node2D):
-	var initial_global_pos = card.global_position	
-	card.reparent(hand_parent)	
-	card.global_position = initial_global_pos	
-	update_hand_layout(hand_parent)
-	await get_tree().create_timer(0.4).timeout # Waits for 0.4 seconds
 	update_scores()
-
-func update_hand_layout(hand_parent: Node2D):
-	var cards = hand_parent.get_children()
-	var num_cards = cards.size()	
-	if num_cards == 0:
-		return
-	var total_hand_width = (num_cards - 1) * CARD_SPACING	
-	var start_x = -total_hand_width / 2.0
+		
+			#top_card.set_is_face_up(true, false) # Instantly face up
+			#add_card_to_hand(top_card, player_hand_parent)
+		#else:
+			##check if it's the dealers first card, if so face down, if not face up
+			#var is_first_card = (dealer_hand_parent.get_child_count() == 0)
+			#print("dealers turn")
+			#print("topcard: ")
+			#print(top_card)
+			#if is_first_card:
+				#top_card.set_is_face_up(false, false)
+			#else:
+				#top_card.set_is_face_up(true, false)
+			#add_card_to_hand(top_card, dealer_hand_parent)
+		#players_turn = !players_turn
 	
-	for i in range(num_cards):
-		var card = cards[i]
-		var target_pos = Vector2(start_x + i * CARD_SPACING, 0)
-		animate_card_to_position(card, target_pos)
+#func add_card_to_hand(card: Node2D, hand_parent: Node2D):
+	#var initial_global_pos = card.global_position	
+	#card.reparent(hand_parent)	
+	#card.global_position = initial_global_pos	
+	#update_hand_layout(hand_parent)
+	#await get_tree().create_timer(0.4).timeout # Waits for 0.4 seconds
+	#update_scores()
 
-func animate_card_to_position(card: Node2D, new_local_position: Vector2):
-	var tween = create_tween().set_parallel() # Parallel allows animating multiple properties at once
-	tween.tween_property(card, "position", new_local_position, 0.3).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(card, "rotation_degrees", 0, 0.3)
+#func update_hand_layout(hand_parent: Node2D):
+	#var cards = hand_parent.get_children()
+	#var num_cards = cards.size()	
+	#if num_cards == 0:
+		#return
+	#var total_hand_width = (num_cards - 1) * CARD_SPACING	
+	#var start_x = -total_hand_width / 2.0
+	#
+	#for i in range(num_cards):
+		#var card = cards[i]
+		#var target_pos = Vector2(start_x + i * CARD_SPACING, 0)
+		#animate_card_to_position(card, target_pos)
+#
+#func animate_card_to_position(card: Node2D, new_local_position: Vector2):
+	#var tween = create_tween().set_parallel() # Parallel allows animating multiple properties at once
+	#tween.tween_property(card, "position", new_local_position, 0.3).set_trans(Tween.TRANS_SINE)
+	#tween.tween_property(card, "rotation_degrees", 0, 0.3)
+	
 	
 func setup_deck():
 	#clears cards and decks, 
@@ -167,7 +178,12 @@ func create_deck():
 		#tween.set_trans(Tween.TRANS_CUBIC)
 		#tween.set_ease(Tween.EASE_OUT)
 		#tween.tween_property(new_card, "global_position", target_position, 0.2)
-		animate_card_to_position(new_card, deck_position_marker.position)
+		#animate_card_to_position(new_card, deck_position_marker.position)
+		print("new card: ")
+		print(new_card)
+		print("deck_position_marker:")
+		print( deck_position_marker)
+		await animation_controller.animate_initial_deck(new_card, deck_position_marker).finished
 	
 	#var new_deck = card_holder.get_children()
 	#print(new_deck.size())

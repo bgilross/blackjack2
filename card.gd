@@ -29,7 +29,8 @@ func is_ace() -> bool:
 	
 func set_is_face_up(show_face: bool, animated: bool = true):
 	if show_face == is_face_up:
-		return		
+		return
+		
 	if animated:
 		_animate_flip(show_face)
 	else:
