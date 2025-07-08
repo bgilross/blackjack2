@@ -24,12 +24,12 @@ var is_face_up: bool = false:
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	#!!All cards must be a child of CardManager Node for this to work!!
-	if get_parent().has_method("connect_card_signals"):
-		get_parent().connect_card_signals(self)
-	else:
-		print("Parent missing Method connect_card_signals")
-	
+	##!!All cards must be a child of CardManager Node for this to work!!
+	#if get_parent().has_method("connect_card_signals"):
+		#get_parent().connect_card_signals(self)
+	#else:
+		#print("Parent missing Method connect_card_signals")
+	#
 	_update_texture()
 
 

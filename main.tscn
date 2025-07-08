@@ -11,7 +11,7 @@ size = Vector2(125.892, 309)
 script = ExtResource("2_h2yge")
 
 [node name="Background" type="Sprite2D" parent="."]
-position = Vector2(959, 556)
+position = Vector2(954, 561)
 scale = Vector2(0.998233, 1)
 texture = ExtResource("1_ig7tw")
 
@@ -28,6 +28,16 @@ position = Vector2(1.9468, -4)
 scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_h2yge")
 
+[node name="UI" parent="." instance=ExtResource("3_h2yge")]
+
+[node name="PlayerHand" type="Node2D" parent="."]
+position = Vector2(928, 763)
+
+[node name="DealerHand" type="Node2D" parent="."]
+position = Vector2(938, 134)
+
+[node name="CardHolder" type="Node2D" parent="."]
+
 [node name="OffScreenStartMarker" type="Marker2D" parent="."]
 position = Vector2(-760, 1124)
 
@@ -38,12 +48,5 @@ position = Vector2(936, 164)
 position = Vector2(278, 544)
 scale = Vector2(0.939278, 0.244732)
 
-[node name="UI" parent="." instance=ExtResource("3_h2yge")]
-
-[node name="PlayerHand" type="Node2D" parent="."]
-position = Vector2(924, 716)
-
-[node name="PlayerHandMarker" type="Marker2D" parent="PlayerHand"]
-
-[node name="PlayerHandMarker2" type="Marker2D" parent="PlayerHand"]
-position = Vector2(125, 60)
+[node name="Node2D" type="Node2D" parent="."]
+position = Vector2(1273, 866)
