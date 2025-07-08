@@ -6,6 +6,7 @@ var deck: Array = []
 var player_hand = []
 var dealer_hand = []
 
+
 var players_turn = true
 #dealer plus 1 player = 2.... 
 var current_players = 2 
@@ -17,6 +18,7 @@ const CardScene = preload("res://card.tscn")
 const PLAYER_HAND_Y_POSITION = 900 #???
 const DEALER_HAND_Y_POSITION = 200 #???
 const CARD_WIDTH = 200
+const CARD_SPACING = 80
 const COLLISION_MASK_CARD = 1
 #var card_being_dragged
 #var is_hovering_on_card
@@ -48,55 +50,66 @@ func _process(delta: float) -> void:
 	pass
 	
 func deal_cards():	
-	for i in current_players * 2:
-		print("i is:")
-		print(i)
-		print()
-		if players_turn:
-			add_card_to_player_hand(card_holder.get_child(0))
-			players_turn = false
-		else:
-			add_card_to_dealers_hand(card_holder.get_child(0))
-			players_turn = true
-	
-
-func add_card_to_player_hand(card):
-	card.reparent(player_hand_parent)
-	update_player_card_positions()
-	
-func add_card_to_dealers_hand(card):
-	card.reparent(dealer_hand_parent)
-	update_dealer_card_positions()
-	
-func update_player_card_positions():
-	for i in range(player_hand_parent.get_child_count()):
-		var new_position = Vector2(calculate_card_position(i), player_hand_parent.position.y)	
-		var card = player_hand_parent.get_child(i)
-		animate_card_to_position(card, new_position)
+	for i in current_players * 2:		
+		if card_holder.get_child_count() == 0:
+			print("Deck is empty")
+			break
+		var top_card: Node2D = card_holder.get_child(0)
 		
-func update_dealer_card_positions():
-	for i in range(dealer_hand_parent.get_child_count()):
-		var new_position = Vector2(calculate_card_position(i), dealer_hand_parent.position.y)	
-		var card = dealer_hand_parent.get_child(i)
-		print("new position is:")
-		print(new_position)
-		animate_card_to_position(card, new_position)
+		if players_turn:
+			print("players turn")
+			print("topcard: ")
+			print(top_card)
+			top_card.set_is_face_up(true, false) # Instantly face up
+			add_card_to_hand(top_card, player_hand_parent)
+		else:
+			#check if it's the first card, if so face down, if not face up
+			var is_first_card = (dealer_hand_parent.get_child_count() == 0)
+			print("dealers turn")
+			print("topcard: ")
+			print(top_card)
+			if is_first_card:
+				top_card.set_is_face_up(false, false)
+			else:
+				top_card.set_is_face_up(true, false)
+			add_card_to_hand(top_card, dealer_hand_parent)
+		players_turn = !players_turn
 	
-func calculate_card_position(index):
-	print("calculate card position, index is %d " % index)
-	var total_width = (player_hand_parent.get_child_count() -1) * CARD_WIDTH
-	
-	var x_offset = player_hand_parent.global_position.x / 2 + index * CARD_WIDTH - total_width / 2
-	print("x_offset")
-	print(x_offset)
-	
-	return x_offset
+func add_card_to_hand(card: Node2D, hand_parent: Node2D):
+	# Store the card's current global position before reparenting
+	var initial_global_pos = card.global_position	
+	# Reparenting messes up its local position.
+	card.reparent(hand_parent)	
+	# Immediately restore global position now it's in the new parent,
+	card.global_position = initial_global_pos	
+	# Now, update the layout for all cards in that hand
+	update_hand_layout(hand_parent)
 
-func animate_card_to_position(card, new_position):
-	print("animating card")
-	var tween = get_tree().create_tween()
-	tween.tween_property(card, "position", new_position, 0.1)
-	print(new_position)
+func update_hand_layout(hand_parent: Node2D):
+	var cards = hand_parent.get_children()
+	var num_cards = cards.size()	
+	if num_cards == 0:
+		return
+	# Calculate the total width the hand will occupy
+	var total_hand_width = (num_cards - 1) * CARD_SPACING
+	
+	# The starting position is half the total width to the left, which centers the whole hand
+	var start_x = -total_hand_width / 2.0
+	
+	for i in range(num_cards):
+		var card = cards[i]
+		# Calculate the target LOCAL position for this card
+		var target_pos = Vector2(start_x + i * CARD_SPACING, 0)
+		
+		# Animate the card from its current local position to its new target local position
+		animate_card_to_position(card, target_pos)
+
+# This function is now perfect, as it tweens the LOCAL position.
+func animate_card_to_position(card: Node2D, new_local_position: Vector2):
+	var tween = create_tween().set_parallel() # Parallel allows animating multiple properties at once
+	tween.tween_property(card, "position", new_local_position, 0.3).set_trans(Tween.TRANS_SINE)
+	# Optional: Animate rotation for a nice fanning effect
+	# tween.tween_property(card, "rotation_degrees", 0, 0.3)
 	
 func setup_deck():
 	#clears cards and decks, 

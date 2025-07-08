@@ -34,7 +34,8 @@ shape = SubResource("RectangleShape2D_h2yge")
 position = Vector2(928, 763)
 
 [node name="DealerHand" type="Node2D" parent="."]
-position = Vector2(938, 134)
+position = Vector2(934, 246)
+scale = Vector2(1.03825, 1.38685)
 
 [node name="CardHolder" type="Node2D" parent="."]
 

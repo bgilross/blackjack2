@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://cijgwfn8jpjkh"]
+[gd_scene load_steps=5 format=3 uid="uid://cijgwfn8jpjkh"]
 
 [ext_resource type="Texture2D" uid="uid://bq5k0ehr5hew1" path="res://CardImages/CardBack.png" id="1_kikvd"]
 [ext_resource type="Script" uid="uid://drl1bso6fpeue" path="res://card.gd" id="1_rjlel"]
+[ext_resource type="Texture2D" uid="uid://cd2a0uyqk3lo0" path="res://CardImages/2_of_clubs.png" id="2_q5obu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(188, 303)
@@ -9,7 +10,14 @@ size = Vector2(188, 303)
 [node name="Card" type="Node2D"]
 script = ExtResource("1_rjlel")
 
-[node name="CardSprite" type="Sprite2D" parent="."]
+[node name="FaceSprite" type="Sprite2D" parent="."]
+position = Vector2(0, 3)
+scale = Vector2(0.419656, 0.419656)
+texture = ExtResource("2_q5obu")
+
+[node name="BackSprite" type="Sprite2D" parent="."]
+position = Vector2(2, 5)
+scale = Vector2(1.13775, 1.03029)
 texture = ExtResource("1_kikvd")
 
 [node name="Area2D" type="Area2D" parent="."]
