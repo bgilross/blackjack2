@@ -31,19 +31,8 @@ shape = SubResource("RectangleShape2D_h2yge")
 [node name="OffScreenStartMarker" type="Marker2D" parent="."]
 position = Vector2(-760, 1124)
 
-[node name="DealerHandMarker" type="Marker2D" parent="."]
-position = Vector2(936, 164)
-
 [node name="DeckPileMarker" type="Marker2D" parent="."]
 position = Vector2(278, 544)
 scale = Vector2(0.939278, 0.244732)
 
 [node name="UI" parent="." instance=ExtResource("3_h2yge")]
-
-[node name="PlayerHand" type="Node2D" parent="."]
-position = Vector2(924, 716)
-
-[node name="PlayerHandMarker" type="Marker2D" parent="PlayerHand"]
-
-[node name="PlayerHandMarker2" type="Marker2D" parent="PlayerHand"]
-position = Vector2(125, 60)
