@@ -29,12 +29,13 @@ scale = Vector2(-1.541, 1)
 position = Vector2(1.9468, -4)
 shape = SubResource("RectangleShape2D_h2yge")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UIController" type="CanvasLayer" parent="."]
+script = ExtResource("5_lquwl")
 
-[node name="Menu" type="Node2D" parent="UI"]
+[node name="Menu" type="Node2D" parent="UIController"]
 position = Vector2(2, 0)
 
-[node name="NewDeal_button" type="Button" parent="UI/Menu"]
+[node name="NewDeal_button" type="Button" parent="UIController/Menu"]
 offset_left = 23.0
 offset_top = 19.0
 offset_right = 105.0
@@ -43,7 +44,7 @@ scale = Vector2(2.55537, 2.90228)
 text = "New Deal
 "
 
-[node name="Deal_button" type="Button" parent="UI/Menu"]
+[node name="Deal_button" type="Button" parent="UIController/Menu"]
 offset_left = 25.0
 offset_top = 220.0
 offset_right = 107.0
@@ -52,7 +53,7 @@ scale = Vector2(2.55537, 2.90228)
 text = "Deal
 "
 
-[node name="ScoreButton" type="Button" parent="UI/Menu"]
+[node name="ScoreButton" type="Button" parent="UIController/Menu"]
 offset_left = 25.0
 offset_top = 113.0
 offset_right = 107.0
@@ -61,7 +62,7 @@ scale = Vector2(2.55537, 2.90228)
 text = "Score
 "
 
-[node name="Hit_button" type="Button" parent="UI/Menu"]
+[node name="Hit_button" type="Button" parent="UIController/Menu"]
 offset_left = 669.0
 offset_top = 922.0
 offset_right = 751.0
@@ -70,7 +71,7 @@ scale = Vector2(2.55537, 2.90228)
 text = "Hit
 "
 
-[node name="Stay_button" type="Button" parent="UI/Menu"]
+[node name="Stay_button" type="Button" parent="UIController/Menu"]
 offset_left = 951.0
 offset_top = 924.0
 offset_right = 1033.0
@@ -79,25 +80,31 @@ scale = Vector2(2.55537, 2.90228)
 text = "Stay
 "
 
-[node name="PlayerHandScoreLabel" parent="UI" instance=ExtResource("3_h2yge")]
+[node name="PlayerHandScoreLabel" parent="UIController" instance=ExtResource("3_h2yge")]
 
-[node name="PlayerScoreLabel" parent="UI" instance=ExtResource("3_h2yge")]
+[node name="PlayerScoreLabel" parent="UIController" instance=ExtResource("3_h2yge")]
 offset_left = 1581.0
 offset_top = 898.0
 offset_right = 1621.0
 offset_bottom = 932.0
 
-[node name="DealerScoreLabel" parent="UI" instance=ExtResource("3_h2yge")]
+[node name="DealerScoreLabel" parent="UIController" instance=ExtResource("3_h2yge")]
 offset_left = 1672.0
 offset_top = 91.0
 offset_right = 1712.0
 offset_bottom = 125.0
 
-[node name="DealerHandScoreLabel" parent="UI" instance=ExtResource("3_h2yge")]
+[node name="DealerHandScoreLabel" parent="UIController" instance=ExtResource("3_h2yge")]
 offset_left = 1911.04
 offset_top = -38.7473
 offset_right = 1951.04
 offset_bottom = -4.7473
+
+[node name="ResultsBannerLabel" type="Label" parent="UIController"]
+offset_left = 922.0
+offset_top = 433.0
+offset_right = 962.0
+offset_bottom = 456.0
 
 [node name="PlayerHand" type="Node2D" parent="."]
 position = Vector2(928, 763)
@@ -123,6 +130,3 @@ position = Vector2(1273, 866)
 
 [node name="AnimationController" type="Node" parent="."]
 script = ExtResource("4_1bvp3")
-
-[node name="UIController" type="Node" parent="."]
-script = ExtResource("5_lquwl")

@@ -1,65 +1,35 @@
 extends Node2D
 
-@onready var face_texture  = $FaceSprite
-@onready var back_texture = $BackSprite
+@onready var face_texture: Sprite2D = $FaceSprite
+@onready var back_texture: Sprite2D = $BackSprite
 
 var suit: String
 var rank: String
 var is_face_up: bool = false
-var value: int
 
-func initialize(_suit: String, _rank: String):
+func initialize(_suit: String, _rank: String) -> void:
 	self.suit = _suit
 	self.rank = _rank
-	face_texture.texture = load("res://CardImages/" + rank + "_of_" + suit + ".png")	
-	set_value()
+	# Tip: Loading textures every time can be slow. If you have many cards,
+	# consider a resource preloader script to load all textures once at startup.
+	face_texture.texture = load("res://CardImages/%s_of_%s.png" % [rank, suit])
 	_update_visuals()
 
-func set_value():
+# This function lets the GameManager determine the card's value based on game rules.
+# It makes the Card node independent of any specific game (Blackjack, Poker, etc.).
+func get_value() -> int:
 	if rank.is_valid_int():
-		value = rank.to_int()
+		return rank.to_int()
 	elif rank in ["jack", "queen", "king"]:
-		value = 10
+		return 10
 	elif rank == "ace":
-		self.value = 11
-		
-func _update_visuals():
-	face_texture.visible = is_face_up
-	back_texture.visible = !is_face_up
+		return 11 # The GameManager will handle reducing it to 1 if needed.
+	return 0
 
-func is_ace() -> bool:
-	return rank == "ace"		
-	
-func perform_visual_flip():
+func perform_visual_flip() -> void:
 	is_face_up = !is_face_up
 	_update_visuals()
 
-
-
-#func set_is_face_up(show_face: bool, animated: bool = true):
-	#if show_face == is_face_up:
-		#return
-		#
-	#if animated:
-		#_animate_flip(show_face)
-	#else:
-		#self.is_face_up = show_face
-		#_update_visuals()
-#
-## A private helper to handle the actual visual change
-#
-#func _animate_flip(show_face: bool):
-	#var tween = create_tween()
-	#tween.tween_property(self, "scale:x", 0, 0.15).set_trans(Tween.TRANS_SINE)
-	#tween.tween_callback(func(): 
-		#self.is_face_up = show_face
-		#_update_visuals()
-	#)
-	#tween.tween_property(self, "scale:x", 1, 0.15).set_trans(Tween.TRANS_SINE)
-		#
-##func _on_area_2d_mouse_entered() -> void:
-	##emit_signal("hovered", self)
-##
-##
-##func _on_area_2d_mouse_exited() -> void:
-	##emit_signal("hovered_off", self)
+func _update_visuals() -> void:
+	face_texture.visible = is_face_up
+	back_texture.visible = !is_face_up
