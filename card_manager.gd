@@ -1,5 +1,20 @@
 extends Node2D
 
+signal player_busted(final_score)
+signal dealer_busted(final_score)
+signal winner_determined(winner_name, reason_text) # e.g., ("Player", "Blackjack!")
+signal score_updated(player_score, dealer_score)
+
+enum GameState {
+	READY,
+	DEALING,
+	PLAYER_TURN,
+	DEALER_TURN,
+	ROUND_OVER
+}
+
+var current_state: GameState
+
 const SUITS = ["clubs", "diamonds", "hearts", "spades"]
 const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"]
 var deck: Array = []
@@ -20,7 +35,6 @@ var dealer_score: int = 0
 @onready var deal_button: Button = $UI/Menu/Deal_button
 @onready var hit_button: Button = $UI/Menu/Hit_button
 @onready var stay_button: Button = $UI/Menu/Stay_button
-@onready var score_button: Button = $UI/Menu/ScoreButton
 @onready var card_holder: Node2D = $CardHolder
 @onready var player_hand_parent: Node2D = $PlayerHand
 @onready var dealer_hand_parent: Node2D = $DealerHand
@@ -32,46 +46,99 @@ var dealer_score: int = 0
 
 func _ready() -> void:
 	new_deal_button.pressed.connect(setup_deck)	
-	deal_button.pressed.connect(deal_hands)
-	hit_button.pressed.connect(hit_pressed)
-	score_button.pressed.connect(score_pressed)
-	stay_button.pressed.connect(stay_pressed)
+	deal_button.pressed.connect(_on_NewDeal_pressed)
+	hit_button.pressed.connect(_on_Hit_pressed)
+	stay_button.pressed.connect(_on_Stay_pressed)
 	
+	set_state(GameState.READY)	
 	update_scoreboard()
 	position_score_labels()
+
+func set_state(new_state: GameState):
+	if current_state == new_state:
+		return
 	
-func _process(delta: float) -> void:
-	pass
+	print("Changing state from ", GameState.keys()[current_state], " to ", GameState.keys()[new_state])
+	current_state = new_state
+
+	# 3. Manage all UI and logic from one place
+	match new_state:
+		GameState.READY:
+			new_deal_button.disabled = false
+			deal_button.disabled = true
+			hit_button.disabled = true
+			stay_button.disabled = true
+			# Maybe show a "Press New Deal" message
+		
+		GameState.DEALING:
+			new_deal_button.disabled = true
+			deal_button.disabled = true
+			hit_button.disabled = true
+			stay_button.disabled = true
+			# The deal_hands function will run and then change state
+			deal_hands() 
+
+		GameState.PLAYER_TURN:
+			hit_button.disabled = false
+			stay_button.disabled = false
+			# Check for blackjack immediately
+			if player_hand_score == 21:
+				set_state(GameState.DEALER_TURN)
+
+		GameState.DEALER_TURN:
+			hit_button.disabled = true
+			stay_button.disabled = true
+			play_dealer_turn() # This function will run and then change state
+
+		GameState.ROUND_OVER:
+			new_deal_button.disabled = false
+			deal_button.disabled = false # Or maybe not, depending on your flow
+			hit_button.disabled = true
+			stay_button.disabled = true
+			# Show a "Winner!" or "Bust!" banner
+
+func _on_NewDeal_pressed():
+	if current_state == GameState.READY or current_state == GameState.ROUND_OVER:
+		setup_deck() # This function would now transition state to DEALING at the end
+
+func _on_Hit_pressed():
+	if current_state == GameState.PLAYER_TURN:
+		player_hit()
+		
+func _on_Stay_pressed():
+	if current_state == GameState.PLAYER_TURN:
+		set_state(GameState.DEALER_TURN)
 
 func update_scoreboard():
 	player_score_label.text = "Player: " + str(player_score)
 	dealer_score_label.text = "Dealer: " + str(dealer_score)
 
 func play_dealer_turn():
-	#flip hole card and calculate score.
-	var hole_card = dealer_hand_parent.get_child(0)
-	if not hole_card.is_face_up:
-		var flip_tween = animation_controller.animate_flip(hole_card)
-		await flip_tween.finished
-		update_scores() # Update the score display now that the card is visible
-	# Add a small delay for dramatic effect
-	await get_tree().create_timer(0.5).timeout
-# 2. Loop: Dealer must hit if score is 16 or less
-	var dealer_score = calculate_hand_value(dealer_hand_parent)
-	if dealer_hand_score < player_hand_score && player_hand_score < 21:
-		while dealer_score < 17:
-			print("Dealer score is %d. Hitting..." % dealer_score)
-			await get_tree().create_timer(1.0).timeout # Pause so it's not instant
-			
-			await deal_card(dealer_hand_parent, true)
-			update_scores()
-			dealer_score = calculate_hand_value(dealer_hand_parent) # Recalculate score for the loop condition
+	if player_hand_score != 21:
+		#flip hole card and calculate score.
+		var hole_card = dealer_hand_parent.get_child(0)
+		if not hole_card.is_face_up:
+			var flip_tween = animation_controller.animate_flip(hole_card)
+			await flip_tween.finished
+			update_scores() # Update the score display now that the card is visible
+		# Add a small delay for dramatic effect
+		await get_tree().create_timer(0.5).timeout
+	# 2. Loop: Dealer must hit if score is 16 or less
+		var dealer_score = calculate_hand_value(dealer_hand_parent)
+		if dealer_hand_score < player_hand_score && player_hand_score < 21:
+			while dealer_score < 17:
+				print("Dealer score is %d. Hitting..." % dealer_score)
+				await get_tree().create_timer(1.0).timeout # Pause so it's not instant
+				
+				await deal_card(dealer_hand_parent, true)
+				update_scores()
+				dealer_score = calculate_hand_value(dealer_hand_parent) # Recalculate score for the loop condition
 	
 	# 3. The dealer's turn is over. Determine the winner.
 	print("Dealer stands with %d." % dealer_score)
 	await get_tree().create_timer(0.5).timeout
 	determine_winner()
-	deal_button.disabled = false
+	set_state(GameState.ROUND_OVER)
 
 func determine_winner():
 	var player_hand = calculate_hand_value(player_hand_parent)
@@ -95,21 +162,11 @@ func determine_winner():
 	update_scoreboard()
 	new_deal_button.disabled = false
 
-func stay_pressed():
-	hit_button.disabled = true
-	stay_button.disabled = true
-	await play_dealer_turn()
-
-func hit_pressed():
+func player_hit():
 	await deal_card(player_hand_parent, true)
-	update_scores()
-	
+	update_scores()	
 	if player_hand_score > 21:
-		print("Player Busts!")
-		stay_pressed()
-	
-func score_pressed():
-	update_scores()
+		set_state(GameState.DEALER_TURN)
 	
 func update_scores(hand = null):
 	print("updateing scores")
@@ -146,13 +203,8 @@ func clear_round():
 	dealer_hand_score_label.text = "Dealer: " + str(dealer_hand_score)	
 
 func deal_hands():	
-	#clear cards first and scores, like from the previous hand...
-	
-	await clear_round()
-	
-	
+	await clear_round()	
 	deal_button.disabled = true
-	#set player for first card to be dealt
 	var players_turn = true
 	for i in current_players * 2:		
 		if card_holder.get_child_count() == 0:
@@ -167,8 +219,11 @@ func deal_hands():
 			await deal_card(dealer_hand_parent, show_face)			
 		players_turn = !players_turn
 	update_scores()
-	hit_button.disabled = false
-	stay_button.disabled = false
+	if player_hand_score != 21:
+		hit_button.disabled = false
+		stay_button.disabled = false
+	else:
+		play_dealer_turn()
 	
 func deal_card(hand_parent: Node2D, should_be_face_up: bool):
 	if card_holder.get_child_count() == 0:
@@ -319,4 +374,6 @@ func get_card_with_highest_z_index(cards):
 		##return result[0].collider.get_parent()
 		#return get_card_with_highest_z_index(result)
 	#return null
-	
+		
+func _process(delta: float) -> void:
+	pass

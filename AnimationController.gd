@@ -1,5 +1,6 @@
 extends Node
 
+
 const MOVE_DURATION = 0.5 # How long a card takes to move to a hand
 const CARD_SPACING = 80   # This visual logic now lives here
 const INITIAL_DEAL_DELAY = 0.02 # Seconds between each card starting its animation
