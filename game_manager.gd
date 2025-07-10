@@ -10,12 +10,12 @@ enum GameState {
 }
 
 var current_state: GameState = -1
-var player_count: int
+
 const CARD_SCENE := preload("res://card.tscn")
 const PLAYER_AREA_SCENE := preload("res://player_area.tscn")
 
 var deck: Array = []
-var player_hands: Array = []
+
 var dealer_hand: Dictionary = {"hand": [], "score": 0}
 var current_turn_index: int = -1
 var players: Array = []
@@ -24,10 +24,20 @@ var players: Array = []
 
 func _ready() -> void:	
 	ui_manager.start_button_pressed.connect(_on_start_game)
+	ui_manager.deal_button_pressed.connect(_on_deal)
+	ui_manager.hit_button_pressed.connect(_on_hit)
+	ui_manager.stand_button_pressed.connect(_on_stand)
+	table.table_setup_complete.connect(_on_table_setup_complete)
+	table.hide_table()
 
+func _on_table_setup_complete():
+	#tell the UI to get allow the deal button/ whatever will start round to be allowed.
+	ui_manager.enter_round_start()
+	
 func _on_start_game(ai_players: int):	
 	ui_manager.hide_start_menu()
 	_create_player_data(ai_players)
+	table.setup_table(players)
 	
 func _create_player_data(ai_players: int):
 	players.clear()
@@ -37,13 +47,16 @@ func _create_player_data(ai_players: int):
 		"score": 0,
 		"is_ai": false
 	})
+	
 	for i in range(ai_players):
 		players.append({
-			"name": f"AI {i + 1}",
+			"name": "AI " + str(i+1),
 			"hand": [],
 			"score": 0,
 			"is_ai": true
 		})
+	
+	print("created player data: ", players)
 	
 func deal_hands(players: int):pass
 
@@ -77,7 +90,7 @@ func calculate_player_score(player_hand) -> int:
 	return score
 
 func reset_data():
-	player_hands.clear()
+	
 	dealer_hand.score = 0
 	dealer_hand.hand.clear()
 

@@ -15,6 +15,7 @@ script = ExtResource("1_8uh7m")
 script = ExtResource("3_ppyta")
 
 [node name="StartMenu" type="Control" parent="GameManager/UIManager"]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 867.0
@@ -40,19 +41,21 @@ offset_top = -2.35073
 offset_right = 37.2985
 offset_bottom = 28.6493
 selected = 0
-item_count = 6
-popup/item_0/text = "1"
-popup/item_0/id = 0
-popup/item_1/text = "2"
-popup/item_1/id = 1
-popup/item_2/text = "3"
-popup/item_2/id = 2
-popup/item_3/text = "4"
-popup/item_3/id = 3
-popup/item_4/text = "5"
-popup/item_4/id = 4
-popup/item_5/text = "6"
-popup/item_5/id = 5
+item_count = 7
+popup/item_0/text = "0"
+popup/item_0/id = 6
+popup/item_1/text = "1"
+popup/item_1/id = 0
+popup/item_2/text = "2"
+popup/item_2/id = 1
+popup/item_3/text = "3"
+popup/item_3/id = 2
+popup/item_4/text = "4"
+popup/item_4/id = 3
+popup/item_5/text = "5"
+popup/item_5/id = 4
+popup/item_6/text = "6"
+popup/item_6/id = 5
 
 [node name="PlayerCountLabel" type="Label" parent="GameManager/UIManager/StartMenu/PlayerCount"]
 offset_left = -91.6786
@@ -60,90 +63,98 @@ offset_right = -15.6786
 offset_bottom = 49.0
 text = "AI Players"
 
+[node name="InGameUI" type="Control" parent="GameManager/UIManager"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1029.0
+offset_top = 533.0
+offset_right = 1069.0
+offset_bottom = 573.0
+
+[node name="DealButton" type="Button" parent="GameManager/UIManager/InGameUI"]
+layout_mode = 0
+offset_left = -47.0
+offset_top = -108.0
+offset_right = -4.0
+offset_bottom = -77.0
+scale = Vector2(2.12622, 2.12622)
+text = "Deal"
+
+[node name="HitButton" type="Button" parent="GameManager/UIManager/InGameUI"]
+layout_mode = 0
+offset_left = -35.0
+offset_top = -19.0
+offset_right = -4.0
+offset_bottom = 12.0
+scale = Vector2(2.12622, 2.12622)
+text = "Hit"
+
+[node name="StandButton" type="Button" parent="GameManager/UIManager/InGameUI"]
+layout_mode = 0
+offset_left = -56.0
+offset_top = 68.0
+offset_right = -3.0
+offset_bottom = 99.0
+scale = Vector2(2.12622, 2.09351)
+text = "Stand"
+
 [node name="Table" type="Node2D" parent="GameManager" node_paths=PackedStringArray("player_areas")]
 script = ExtResource("3_ykrsh")
-player_areas = [NodePath("DealerMarker/DealerArea"), NodePath("PlayerMarker/PlayerArea"), NodePath("AI1Marker/AIArea1"), NodePath("AI2Marker/AIArea2"), NodePath("AI3Marker/AIArea3"), NodePath("AI4Marker/AIArea4"), NodePath("AI5Marker/AIArea5"), NodePath("AI6Marker/AIArea6")]
-
-[node name="DealerMarker" type="Node2D" parent="GameManager/Table"]
-position = Vector2(973, 268)
-
-[node name="DealerArea" parent="GameManager/Table/DealerMarker" instance=ExtResource("3_6uqi0")]
-offset_left = 5.0
-offset_top = -16.0
-offset_right = 45.0
-offset_bottom = 24.0
-
-[node name="PlayerMarker" type="Node2D" parent="GameManager/Table"]
-position = Vector2(980, 930)
-
-[node name="PlayerArea" parent="GameManager/Table/PlayerMarker" instance=ExtResource("3_6uqi0")]
-offset_left = -1.0
-offset_top = -27.0
-offset_right = 39.0
-offset_bottom = 13.0
-
-[node name="AI1Marker" type="Node2D" parent="GameManager/Table"]
-visible = false
-position = Vector2(1512, 227)
-
-[node name="AIArea1" parent="GameManager/Table/AI1Marker" instance=ExtResource("3_6uqi0")]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="AI2Marker" type="Node2D" parent="GameManager/Table"]
-visible = false
-position = Vector2(425, 926)
-
-[node name="AIArea2" parent="GameManager/Table/AI2Marker" instance=ExtResource("3_6uqi0")]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="AI3Marker" type="Node2D" parent="GameManager/Table"]
-visible = false
-position = Vector2(1552, 925)
-
-[node name="AIArea3" parent="GameManager/Table/AI3Marker" instance=ExtResource("3_6uqi0")]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="AI4Marker" type="Node2D" parent="GameManager/Table"]
-visible = false
-position = Vector2(493, 226)
-
-[node name="AIArea4" parent="GameManager/Table/AI4Marker" instance=ExtResource("3_6uqi0")]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="AI5Marker" type="Node2D" parent="GameManager/Table"]
-visible = false
-position = Vector2(1717, 544)
-
-[node name="AIArea5" parent="GameManager/Table/AI5Marker" instance=ExtResource("3_6uqi0")]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="AI6Marker" type="Node2D" parent="GameManager/Table"]
-visible = false
-position = Vector2(268, 522)
-
-[node name="AIArea6" parent="GameManager/Table/AI6Marker" instance=ExtResource("3_6uqi0")]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 40.0
-offset_bottom = 40.0
+player_areas = [NodePath("DealerArea"), NodePath("PlayerArea"), NodePath("AIArea1"), NodePath("AIArea2"), NodePath("AIArea3"), NodePath("AIArea4"), NodePath("AIArea5"), NodePath("AIArea6")]
 
 [node name="DeckMarker" type="Node2D" parent="GameManager/Table"]
-position = Vector2(672, 548)
+position = Vector2(741, 548)
+
+[node name="DealerArea" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 978.0
+offset_top = 252.0
+offset_right = 1018.0
+offset_bottom = 292.0
+
+[node name="PlayerArea" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 979.0
+offset_top = 903.0
+offset_right = 1019.0
+offset_bottom = 943.0
+
+[node name="AIArea1" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 1512.0
+offset_top = 227.0
+offset_right = 1552.0
+offset_bottom = 267.0
+
+[node name="AIArea2" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 425.0
+offset_top = 926.0
+offset_right = 465.0
+offset_bottom = 966.0
+
+[node name="AIArea3" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 1552.0
+offset_top = 925.0
+offset_right = 1592.0
+offset_bottom = 965.0
+
+[node name="AIArea4" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 493.0
+offset_top = 226.0
+offset_right = 533.0
+offset_bottom = 266.0
+
+[node name="AIArea5" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 1717.0
+offset_top = 544.0
+offset_right = 1757.0
+offset_bottom = 584.0
+
+[node name="AIArea6" parent="GameManager/Table" instance=ExtResource("3_6uqi0")]
+offset_left = 268.0
+offset_top = 522.0
+offset_right = 308.0
+offset_bottom = 562.0
+
+[node name="SpawnPos" type="Node2D" parent="GameManager/Table"]
+position = Vector2(699, -445)
 
 [node name="Background" type="Sprite2D" parent="GameManager"]
 z_index = -1

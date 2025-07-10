@@ -1,8 +1,8 @@
-extends Node2D
+extends Control
 
 @onready var player_score_label: Label = $PlayerScoreLabel
 @onready var hand_score_label: Label = $HandScoreLabel
-@onready var hand_container: Node2D = $HandContainer
+@onready var hand_container: Control = $HandContainer
 
 var player_name: String
 var current_score
@@ -13,30 +13,25 @@ func setup(plr_name: String):
 	name = plr_name
 	update_display(0, 0, false)
 	
-func add_card(card_instance: Node):
+func add_card(card_instance: Node2D):
 	hand_container.add_child(card_instance)
-	hand_container.update_layout()
-	
-	
-	
+	hand_container.update_layout()	
 
 func update_score(score: int):
 	update_display(score, current_hand_value, false)
 func update_hand_value(hand_value: int, is_busted: bool):
-	update_display(current_score, hand_value, is_busted)
-	
+	update_display(current_score, hand_value, is_busted)	
 
 func update_display(score: int, hand_value: int, is_busted: bool) -> void:
 	player_score_label.text = player_name + ": " + str(score) 
-	hand_score_label.text = "Hand: " + str(hand_value)
 	if is_busted:
 		hand_score_label.text = "BUST"
 		hand_score_label.modulate = Color.FIREBRICK
 	else:
-		hand_score_label.text = str(score)
+		hand_score_label.text =  "Hand: " + str(hand_value)
 		hand_score_label.modulate = Color.WHITE
 
-func get_hand_container() -> Node2D:
+func get_hand_container() -> Control:
 	return hand_container
 
 func set_active_turn(is_active: bool) -> void:

@@ -7,6 +7,9 @@ var suit: String
 var rank: String
 var is_face_up: bool = false
 
+func _ready():
+	back_texture.texture = preload("res://CardImages/CardBack.png")
+
 func initialize(_suit: String, _rank: String) -> void:
 	self.suit = _suit
 	self.rank = _rank
@@ -31,5 +34,13 @@ func perform_visual_flip() -> void:
 	_update_visuals()
 
 func _update_visuals() -> void:
+	if !back_texture:
+		return
+	
 	face_texture.visible = is_face_up
 	back_texture.visible = !is_face_up
+	
+func set_face_down():
+	face_texture.visible = false
+	back_texture.visible = true
+	
