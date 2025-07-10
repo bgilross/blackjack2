@@ -1,35 +1,53 @@
 extends Node2D
 
-@onready var name_label: Label = $NameLabel
-@onready var score_label: Label = $ScoreLabel
-@onready var hand_parent: Node2D = $HandParent
+@onready var player_score_label: Label = $PlayerScoreLabel
+@onready var hand_score_label: Label = $HandScoreLabel
+@onready var hand_container: Node2D = $HandContainer
 
-func setup(player_name: String):
-	name = player_name # Set the Node's own name for easier debugging in the scene tree
-	name_label.text = player_name
-	score_label.text = "0"
-	score_label.modulate = Color.WHITE
+var player_name: String
+var current_score
+var current_hand_value
 
-func update_display(score: int, is_busted: bool) -> void:
+func setup(plr_name: String):
+	player_name = plr_name # Set the Node's own name for easier debugging in the scene tree
+	name = plr_name
+	update_display(0, 0, false)
+	
+func add_card(card_instance: Node):
+	hand_container.add_child(card_instance)
+	hand_container.update_layout()
+	
+	
+	
+
+func update_score(score: int):
+	update_display(score, current_hand_value, false)
+func update_hand_value(hand_value: int, is_busted: bool):
+	update_display(current_score, hand_value, is_busted)
+	
+
+func update_display(score: int, hand_value: int, is_busted: bool) -> void:
+	player_score_label.text = player_name + ": " + str(score) 
+	hand_score_label.text = "Hand: " + str(hand_value)
 	if is_busted:
-		score_label.text = "BUST"
-		score_label.modulate = Color.FIREBRICK
+		hand_score_label.text = "BUST"
+		hand_score_label.modulate = Color.FIREBRICK
 	else:
-		score_label.text = str(score)
-		score_label.modulate = Color.WHITE
+		hand_score_label.text = str(score)
+		hand_score_label.modulate = Color.WHITE
 
-func get_hand_parent() -> Node2D:
-	return hand_parent
+func get_hand_container() -> Node2D:
+	return hand_container
 
 func set_active_turn(is_active: bool) -> void:
 	# Using a tween for a smoother visual effect.
 	var tween = create_tween().set_trans(Tween.TRANS_SINE)
 	if is_active:
-		tween.tween_property(name_label, "modulate", Color.GOLD, 0.2)
-		tween.tween_property(name_label, "scale", Vector2(1.2, 1.2), 0.2)
+		tween.tween_property(player_score_label, "modulate", Color.GOLD, 0.2)
+		tween.tween_property(player_score_label, "scale", Vector2(1.2, 1.2), 0.2)
 	else:
-		tween.tween_property(name_label, "modulate", Color.WHITE, 0.2)
-		tween.tween_property(name_label, "scale", Vector2.ONE, 0.2)
+		tween.tween_property(player_score_label, "modulate", Color.WHITE, 0.2)
+		tween.tween_property(player_score_label, "scale", Vector2.ONE, 0.2)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

@@ -16,13 +16,16 @@ scale = Vector2(0.419656, 0.419656)
 texture = ExtResource("2_q5obu")
 
 [node name="BackSprite" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(2, 5)
 scale = Vector2(1.13775, 1.03029)
 texture = ExtResource("1_kikvd")
 
 [node name="Area2D" type="Area2D" parent="."]
+visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+visible = false
 position = Vector2(-1, -0.5)
 shape = SubResource("RectangleShape2D_0xm2m")
 

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="blackjack1"
-run/main_scene="uid://cuhpwkg2m1t60"
+run/main_scene="uid://bvrbr1p08jjrr"
 config/features=PackedStringArray("4.4", "Mobile")
 
 [display]

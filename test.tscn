@@ -1,0 +1,151 @@
+[gd_scene load_steps=6 format=3 uid="uid://bvrbr1p08jjrr"]
+
+[ext_resource type="Texture2D" uid="uid://bj5xigdm42cst" path="res://Background.png" id="1_6uqi0"]
+[ext_resource type="Script" uid="uid://bh0dtupqhjs3c" path="res://game_manager.gd" id="1_8uh7m"]
+[ext_resource type="PackedScene" uid="uid://dnd7giw62ak0x" path="res://player_area.tscn" id="3_6uqi0"]
+[ext_resource type="Script" uid="uid://6vctmi2b5db8" path="res://ui_manager.gd" id="3_ppyta"]
+[ext_resource type="Script" uid="uid://ckter45rs8nl0" path="res://table.gd" id="3_ykrsh"]
+
+[node name="Test" type="Node2D"]
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("1_8uh7m")
+
+[node name="UIManager" type="CanvasLayer" parent="GameManager"]
+script = ExtResource("3_ppyta")
+
+[node name="StartMenu" type="Control" parent="GameManager/UIManager"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 867.0
+offset_top = 446.0
+offset_right = 867.0
+offset_bottom = 446.0
+scale = Vector2(1.2762, 1.2762)
+
+[node name="StartButton" type="Button" parent="GameManager/UIManager/StartMenu"]
+layout_mode = 0
+offset_left = 77.5742
+offset_top = 50.9326
+offset_right = 85.5742
+offset_bottom = 58.9326
+text = "Start"
+
+[node name="PlayerCount" type="Node2D" parent="GameManager/UIManager/StartMenu"]
+position = Vector2(126.94, 19.5894)
+
+[node name="PlayerCountOption" type="OptionButton" parent="GameManager/UIManager/StartMenu/PlayerCount"]
+offset_left = -4.70147
+offset_top = -2.35073
+offset_right = 37.2985
+offset_bottom = 28.6493
+selected = 0
+item_count = 6
+popup/item_0/text = "1"
+popup/item_0/id = 0
+popup/item_1/text = "2"
+popup/item_1/id = 1
+popup/item_2/text = "3"
+popup/item_2/id = 2
+popup/item_3/text = "4"
+popup/item_3/id = 3
+popup/item_4/text = "5"
+popup/item_4/id = 4
+popup/item_5/text = "6"
+popup/item_5/id = 5
+
+[node name="PlayerCountLabel" type="Label" parent="GameManager/UIManager/StartMenu/PlayerCount"]
+offset_left = -91.6786
+offset_right = -15.6786
+offset_bottom = 49.0
+text = "AI Players"
+
+[node name="Table" type="Node2D" parent="GameManager" node_paths=PackedStringArray("player_areas")]
+script = ExtResource("3_ykrsh")
+player_areas = [NodePath("DealerMarker/DealerArea"), NodePath("PlayerMarker/PlayerArea"), NodePath("AI1Marker/AIArea1"), NodePath("AI2Marker/AIArea2"), NodePath("AI3Marker/AIArea3"), NodePath("AI4Marker/AIArea4"), NodePath("AI5Marker/AIArea5"), NodePath("AI6Marker/AIArea6")]
+
+[node name="DealerMarker" type="Node2D" parent="GameManager/Table"]
+position = Vector2(973, 268)
+
+[node name="DealerArea" parent="GameManager/Table/DealerMarker" instance=ExtResource("3_6uqi0")]
+offset_left = 5.0
+offset_top = -16.0
+offset_right = 45.0
+offset_bottom = 24.0
+
+[node name="PlayerMarker" type="Node2D" parent="GameManager/Table"]
+position = Vector2(980, 930)
+
+[node name="PlayerArea" parent="GameManager/Table/PlayerMarker" instance=ExtResource("3_6uqi0")]
+offset_left = -1.0
+offset_top = -27.0
+offset_right = 39.0
+offset_bottom = 13.0
+
+[node name="AI1Marker" type="Node2D" parent="GameManager/Table"]
+visible = false
+position = Vector2(1512, 227)
+
+[node name="AIArea1" parent="GameManager/Table/AI1Marker" instance=ExtResource("3_6uqi0")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AI2Marker" type="Node2D" parent="GameManager/Table"]
+visible = false
+position = Vector2(425, 926)
+
+[node name="AIArea2" parent="GameManager/Table/AI2Marker" instance=ExtResource("3_6uqi0")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AI3Marker" type="Node2D" parent="GameManager/Table"]
+visible = false
+position = Vector2(1552, 925)
+
+[node name="AIArea3" parent="GameManager/Table/AI3Marker" instance=ExtResource("3_6uqi0")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AI4Marker" type="Node2D" parent="GameManager/Table"]
+visible = false
+position = Vector2(493, 226)
+
+[node name="AIArea4" parent="GameManager/Table/AI4Marker" instance=ExtResource("3_6uqi0")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AI5Marker" type="Node2D" parent="GameManager/Table"]
+visible = false
+position = Vector2(1717, 544)
+
+[node name="AIArea5" parent="GameManager/Table/AI5Marker" instance=ExtResource("3_6uqi0")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AI6Marker" type="Node2D" parent="GameManager/Table"]
+visible = false
+position = Vector2(268, 522)
+
+[node name="AIArea6" parent="GameManager/Table/AI6Marker" instance=ExtResource("3_6uqi0")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DeckMarker" type="Node2D" parent="GameManager/Table"]
+position = Vector2(672, 548)
+
+[node name="Background" type="Sprite2D" parent="GameManager"]
+z_index = -1
+position = Vector2(962, 585)
+texture = ExtResource("1_6uqi0")
