@@ -4,6 +4,7 @@ class_name CardData extends RefCounted
 var suit: String
 var rank: String
 var value: int
+var face_up: bool = false
 
 func _init(s: String, r: String, v: int):
 	suit = s

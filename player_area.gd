@@ -6,8 +6,8 @@ extends VBoxContainer
 @onready var center_marker: Marker2D = $HandArea/HandContainer/CenterMarker
 
 var player_name: String
-var current_score
-var current_hand_value
+var current_score: int = 0
+var current_hand_value: int = 0
 
 func setup(plr_name: String):
 	player_name = plr_name # Set the Node's own name for easier debugging in the scene tree
@@ -20,7 +20,7 @@ func add_card(card_instance: Node2D):
 
 func update_score(score: int):
 	update_display(score, current_hand_value, false)
-func update_hand_value(hand_value: int, is_busted: bool):
+func update_hand_value(hand_value: int, is_busted: bool = false):
 	update_display(current_score, hand_value, is_busted)	
 
 func update_display(score: int, hand_value: int, is_busted: bool) -> void:

@@ -69,7 +69,17 @@ func _create_move_tween(node_to_move: Control, target_global_position: Vector2, 
 	
 	return tween
 	
-
+func reveal_hand(seat_index: int):
+	var player_area = get_seat(seat_index)
+	if not player_area: return
+	
+	var hand_container = player_area.get_hand_container()
+	var cards_in_hand = hand_container.get_children()
+	
+	var first_card_node = cards_in_hand[1]
+	
+	if not first_card_node.is_face_up:
+		await animate_flip(first_card_node)
 
 func clear_deck():
 	for card in deck_marker.get_children():
@@ -128,11 +138,9 @@ func clear_all_hands():
 		if area.visible:
 			area.clear_hand() # Assumes PlayerArea has a clear_hand() func
 	
-func get_area_for_player(index: int) -> Control:
-	if index == -1: # -1 is our code for the dealer
-		return player_areas[1]
-	else:
-		return player_areas[index] # Note: This assumes simple mapping. A more robust way might use player IDs.
+func get_seat(index: int) -> VBoxContainer:
+	# ind 0 should be seat 1, ind 7 should be last seat AKA Dealer seat...
+	return player_areas[index] # Note: This assumes simple mapping. A more robust way might use player IDs.
 
 
 # Called when the node enters the scene tree for the first time.

@@ -31,15 +31,13 @@ func _on_StartButton_pressed():
 	start_button_pressed.emit(player_count)
 	
 func _on_DealButton_pressed():
-	deal_button_pressed.emit()
-	
+	deal_button_pressed.emit()	
 
 func _on_HitButton_pressed():
 	hit_button_pressed.emit()
 
 func _on_StandButton_pressed():
 	stand_button_pressed.emit()
-
 	
 func _get_player_count():
 	var selected_id = player_count_dropdown.get_selected_id()
@@ -48,15 +46,31 @@ func _get_player_count():
 	var player_count_int = player_count.to_int()
 	return player_count_int
 	
-func hide_start_menu():
-	start_menu.visible = false
-	
 func enter_round_start():
+	#off
 	start_menu.visible = false
 	stand_button.visible = false
 	hit_button.visible = false
-	deal_button.visible = true
+	
+	#on
 	game_ui.visible = true
+	deal_button.visible = true
+	
+func enter_setup():
+	start_menu.visible = false
+	game_ui.visible = false
 
+func enter_player_turn():
+	start_menu.visible = false
+	
+	game_ui.visible = true
+	deal_button.visible = false
+	hit_button.visible = true
+	stand_button.visible = true
+
+func enter_non_player_turn():
+	start_menu.visible = false
+	game_ui.visible = false
+	
 	
 	

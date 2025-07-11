@@ -1,5 +1,6 @@
 extends Control
 
+signal player_turn_finished
 
 enum GameState {
 	MENU,
@@ -22,6 +23,7 @@ const PLAYER_AREA_SCENE := preload("res://player_area.tscn")
 const TOTAL_AI_SEATS: int = 6
 const HUMAN_SEAT_INDEX: int = 3
 const DEALER_SEAT_INDEX: int = 7 #or -1?
+const DELAY_TIME: int = .6
 
 var deck: Array = []
 var dealer_hand: Dictionary = {"hand": [], "score": 0}
@@ -35,14 +37,90 @@ func _ready() -> void:
 	ui_manager.start_button_pressed.connect(_on_start_game)
 	table.table_setup_complete.connect(_on_table_setup_complete)
 	ui_manager.deal_button_pressed.connect(_on_deal)
-	#ui_manager.hit_button_pressed.connect(_on_hit)
-	#ui_manager.stand_button_pressed.connect(_on_stand)
+	ui_manager.hit_button_pressed.connect(_on_hit)
+	ui_manager.stand_button_pressed.connect(_on_stand)
+	#
 	
+func _on_hit():
+	var player = players.find(func(p): return p.name == "Player")
+	if not player or player.is_busted: return
+	
+	await deal_card(player, true)
+	if player.hand_value > 21:
+		player.is_busted = true
+		table.get_seat(player.seat_index).update_hand_value(player.hand_value, true)
+		ui_manager.enter_non_player_turn() # Hide Hit/Stand buttons
+
+		# --- NEW LINE ---
+		# Tell the table to perform the visual action for the player
+		await table.reveal_hand(player.seat_index)
+		# --- END NEW LINE ---
+		player_turn_finished.emit()
+	
+func pause():
+	await get_tree().create_timer(DELAY_TIME).timeout
+
+func _on_stand():
+	ui_manager.enter_non_player_turn() # Hide Hit/Stand buttons
+	player_turn_finished.emit() # End the turn
 	
 func _on_deal():
-	_deal_hands()
+	await _deal_hands()
+	enter_turn_phase()
 
+func enter_turn_phase():
+	print("entering turn phase.")
+	ui_manager.enter_non_player_turn()
+	for player in players:
+		print("in player for loop, current player is: ", player)
+		await resolve_turn(player)
+	#technically any player/AI blackjacks should be resolved immediately here, as well as maybe dealer blackjack check if none have it? but I'm going to wait for now.
+	#find the first players/AIs turn and start it up
+	#enter_round_over()
+
+func enter_round_over():
+	for player in players:
+		if !player.is_busted:
+			table.reveal_hand(player.seat_index)
+
+func resolve_turn(player):
+	if player.name == "Dealer":
+		await enter_dealer_turn(player)
+	elif player.is_ai:
+		await enter_ai_turn(player)
+	elif player.name == "Player":
+		await enter_player_turn(player)
+	else: print("error no player turn to go to? or something?")
+	
+func enter_player_turn(player):
+	ui_manager.enter_player_turn()
+	await self.player_turn_finished
+		
+func enter_ai_turn(player):
+	ai_turn_logic(player)
+	
+
+func ai_turn_logic(player):
+		while player.hand_value < 17 and !player.is_busted:
+			await deal_card(player, true)
+			if player.hand_value > 21:
+				#player busts.....
+				player.is_busted = true
+				await table.reveal_hand(player.seat_index)
+				table.get_seat(player.seat_index).update_hand_value(player.score, true)
+				#turn is over so return?
+				await pause()
+				return
+			await pause()
+			
+func enter_dealer_turn(player):
+	ai_turn_logic(player)
+	
 func _deal_hands():
+	#clear previous hand value scores and hand arrays...
+	for player in players:
+		player.hand.clear()
+		player.score
 	print("dealing for # (players.size())", players.size())
 	print("dealing in this order: ", players)
 	for player in players:
@@ -57,30 +135,43 @@ func _deal_hands():
 func deal_card(player, flip_face_up: bool = false):
 	if deck.is_empty(): return
 	var card_data = deck.pop_front()
+	card_data.face_up = flip_face_up
 	player.hand.append(card_data)
-	print("dealing: ", card_data, "to ", player)
-	print("carddata stuff: ", card_data.rank, card_data.suit)
 	await table.animate_deal_card(player.seat_index, card_data, flip_face_up)
-	#player.score = calculate_player_score(player.hand)
-	#update score somehow??
-	# We need a way to get the area and update its display.
-	#var target_area = table.get_area_for_seat(player_data.seat_index)
-	# The PlayerArea script should probably just have one update function
-	# target_area.update_display(player_data.score, false)
-	
+	#calculating the visible card score only here, simply to keep Hand Scores updated
+	if flip_face_up:
+		var target_seat = table.get_seat(player.seat_index)
+		var visible_hand_value = calculate_hand_value(player, flip_face_up)
+		target_seat.update_hand_value(visible_hand_value)
+		player.visible_hand_value = visible_hand_value
+		
+	var hand_value = calculate_hand_value(player)
+	player.hand_value = hand_value
 	
 func _on_table_setup_complete():
 	#tell the UI to get allow the deal button/ whatever will start round to be allowed.
 	ui_manager.enter_round_start()
-	
+	#waiting for deal button to be pressed for now	
 		
 func _on_start_game(ai_players: int):	
-	ui_manager.hide_start_menu()
+	ui_manager.enter_setup()
 	_create_player_list(ai_players)
 	table.setup_table(players)
 	create_deck()
 	shuffle_deck()
-	print("deck card 1", deck[0])
+	
+func calculate_hand_value(player, visible_only: bool = false) -> int:
+	var total = 0
+	var ace_count = 0
+	for card in player.hand:	
+		if visible_only and !card.face_up: continue
+		total += card.value
+		if card.rank == "ace":
+			ace_count += 1
+	while total > 21 and ace_count > 0:
+		total -= 10
+		ace_count -= 1
+	return total
 	
 func create_deck():
 	deck.clear()
@@ -96,7 +187,6 @@ func create_deck():
 func shuffle_deck():
 	deck.shuffle()
 
-
 func _create_player_list(num_ai_to_select: int):
 	players.clear()
 	# A. Always add the human player.
@@ -104,16 +194,22 @@ func _create_player_list(num_ai_to_select: int):
 		"name": "Player",
 		"seat_index": HUMAN_SEAT_INDEX,
 		"hand": [],
+		"hand_value": 0,
+		"visible_hand_value": 0,
 		"score": 0,
-		"is_ai": false
+		"is_ai": false,
+		"is_busted": false
 	})
 	# B. Always add the dealer.
 	players.append({
 		"name": "Dealer",
 		"seat_index": DEALER_SEAT_INDEX,
 		"hand": [],
+		"hand_value": 0,
+		"visible_hand_value": 0,
 		"score": 0,
-		"is_ai": true
+		"is_ai": true,
+		"is_busted": false
 	})	
 	var selected_ai_indices = _select_ai_seats(num_ai_to_select)
 
@@ -130,8 +226,11 @@ func _create_player_list(num_ai_to_select: int):
 			"name": ai_name,
 			"seat_index": seat_idx,
 			"hand": [],
+			"hand_value": 0,
+			"visible_hand_value": 0,
 			"score": 0,
-			"is_ai": true
+			"is_ai": true,
+			"is_busted": false
 		})
 	players.sort_custom(func(a, b): return a.seat_index < b.seat_index)
 	
@@ -140,93 +239,6 @@ func _create_player_list(num_ai_to_select: int):
 		print(p.name, " at Seat", p.seat_index)
 	print("players looks like: ", players)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-#func _ready() -> void:	
-	#ui_manager.start_button_pressed.connect(_on_start_game)
-	#ui_manager.deal_button_pressed.connect(_on_deal)
-	#ui_manager.hit_button_pressed.connect(_on_hit)
-	#ui_manager.stand_button_pressed.connect(_on_stand)
-	#table.table_setup_complete.connect(_on_table_setup_complete)
-	#table.hide_table()
-	#
-#func _on_start_game(ai_players: int):	
-	#ui_manager.hide_start_menu()
-	#_create_player_list(ai_players)
-	##_build_current_turn_order()
-	#table.setup_table(players)
-	#create_deck()
-	#shuffle_deck()
-	#print("deck card 1", deck[0])
-#
-#func _on_deal():
-	#_deal_hands()
-#
-#func _deal_hands():
-	#print("dealing for # (players.size())", players.size())
-	#print("dealing in this order: ", players)
-	#for player in players:
-		#if player.name == "Player":
-			#await deal_card(player, true)
-		#else:
-			#await deal_card(player)
-	#for player in players:
-		#await deal_card(player, true)
-		#
-#
-#func deal_card(player, flip_face_up: bool = false):
-	#if deck.is_empty(): return
-	#var card_data = deck.pop_front()
-	#player.hand.append(card_data)
-	#print("dealing: ", card_data, "to ", player)
-	#await table.animate_deal_card(player.seat_index, card_data, flip_face_up)
-	#player.score = calculate_player_score(player.hand)
-	##update score somehow??
-	## We need a way to get the area and update its display.
-	##var target_area = table.get_area_for_seat(player_data.seat_index)
-	## The PlayerArea script should probably just have one update function
-	## target_area.update_display(player_data.score, false)
-#
-#func _on_hit():
-	#pass
-	#
-#func _on_stand():
-	#pass
-#
-#func _on_table_setup_complete():
-	##tell the UI to get allow the deal button/ whatever will start round to be allowed.
-	#ui_manager.enter_round_start()
-	#
 func _select_ai_seats(num_ai_to_select: int) -> Array[int]:
 	var selected_indices: Array[int] = []
 
