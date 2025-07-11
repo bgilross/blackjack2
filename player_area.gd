@@ -1,8 +1,9 @@
-extends Control
+extends VBoxContainer
 
-@onready var player_score_label: Label = $PlayerScoreLabel
+@onready var player_score_label: Label = $NameScoreLabel
 @onready var hand_score_label: Label = $HandScoreLabel
-@onready var hand_container: Control = $HandSizeTarget/HandContainer
+@onready var hand_container: Control = $HandArea/HandContainer
+@onready var center_marker: Marker2D = $HandArea/HandContainer/CenterMarker
 
 var player_name: String
 var current_score
@@ -33,6 +34,9 @@ func update_display(score: int, hand_value: int, is_busted: bool) -> void:
 
 func get_hand_container() -> Control:
 	return hand_container
+
+func get_center_marker() -> Marker2D:
+	return center_marker
 
 func set_active_turn(is_active: bool) -> void:
 	# Using a tween for a smoother visual effect.

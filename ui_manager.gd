@@ -8,7 +8,7 @@ signal deal_button_pressed
 
 @onready var start_button: Button = $StartMenu/StartButton
 @onready var player_count_dropdown: OptionButton = $StartMenu/PlayerCount/PlayerCountOption
-@onready var table: Node2D = $"../Table"
+@onready var table: GridContainer = $"../Table"
 @onready var start_menu: Control = $StartMenu
 @onready var game_ui: Control = $InGameUI
 @onready var hit_button: Button = $InGameUI/HitButton

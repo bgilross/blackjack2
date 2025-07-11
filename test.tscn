@@ -2,8 +2,8 @@
 
 [ext_resource type="Texture2D" uid="uid://bj5xigdm42cst" path="res://Background.png" id="1_6uqi0"]
 [ext_resource type="Script" uid="uid://bh0dtupqhjs3c" path="res://game_manager.gd" id="1_8uh7m"]
+[ext_resource type="PackedScene" uid="uid://brs8rmwiueb3y" path="res://ui_manager.tscn" id="2_ykrsh"]
 [ext_resource type="PackedScene" uid="uid://dnd7giw62ak0x" path="res://player_area.tscn" id="3_6uqi0"]
-[ext_resource type="Script" uid="uid://6vctmi2b5db8" path="res://ui_manager.gd" id="3_ppyta"]
 [ext_resource type="Script" uid="uid://ckter45rs8nl0" path="res://table.gd" id="3_ykrsh"]
 
 [node name="Test" type="Node2D"]
@@ -11,92 +11,7 @@
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("1_8uh7m")
 
-[node name="UIManager" type="CanvasLayer" parent="GameManager"]
-script = ExtResource("3_ppyta")
-
-[node name="StartMenu" type="Control" parent="GameManager/UIManager"]
-visible = false
-layout_mode = 3
-anchors_preset = 0
-offset_left = 867.0
-offset_top = 446.0
-offset_right = 867.0
-offset_bottom = 446.0
-scale = Vector2(1.2762, 1.2762)
-
-[node name="StartButton" type="Button" parent="GameManager/UIManager/StartMenu"]
-layout_mode = 0
-offset_left = 77.5742
-offset_top = 50.9326
-offset_right = 85.5742
-offset_bottom = 58.9326
-text = "Start"
-
-[node name="PlayerCount" type="Node2D" parent="GameManager/UIManager/StartMenu"]
-position = Vector2(126.94, 19.5894)
-
-[node name="PlayerCountOption" type="OptionButton" parent="GameManager/UIManager/StartMenu/PlayerCount"]
-offset_left = -4.70147
-offset_top = -2.35073
-offset_right = 37.2985
-offset_bottom = 28.6493
-selected = 0
-item_count = 7
-popup/item_0/text = "0"
-popup/item_0/id = 6
-popup/item_1/text = "1"
-popup/item_1/id = 0
-popup/item_2/text = "2"
-popup/item_2/id = 1
-popup/item_3/text = "3"
-popup/item_3/id = 2
-popup/item_4/text = "4"
-popup/item_4/id = 3
-popup/item_5/text = "5"
-popup/item_5/id = 4
-popup/item_6/text = "6"
-popup/item_6/id = 5
-
-[node name="PlayerCountLabel" type="Label" parent="GameManager/UIManager/StartMenu/PlayerCount"]
-offset_left = -91.6786
-offset_right = -15.6786
-offset_bottom = 49.0
-text = "AI Players"
-
-[node name="InGameUI" type="Control" parent="GameManager/UIManager"]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 1029.0
-offset_top = 533.0
-offset_right = 1069.0
-offset_bottom = 573.0
-
-[node name="DealButton" type="Button" parent="GameManager/UIManager/InGameUI"]
-layout_mode = 0
-offset_left = -47.0
-offset_top = -108.0
-offset_right = -4.0
-offset_bottom = -77.0
-scale = Vector2(2.12622, 2.12622)
-text = "Deal"
-
-[node name="HitButton" type="Button" parent="GameManager/UIManager/InGameUI"]
-layout_mode = 0
-offset_left = -35.0
-offset_top = -19.0
-offset_right = -4.0
-offset_bottom = 12.0
-scale = Vector2(2.12622, 2.12622)
-text = "Hit"
-
-[node name="StandButton" type="Button" parent="GameManager/UIManager/InGameUI"]
-layout_mode = 0
-offset_left = -56.0
-offset_top = 68.0
-offset_right = -3.0
-offset_bottom = 99.0
-scale = Vector2(2.12622, 2.09351)
-text = "Stand"
+[node name="UIManager" parent="GameManager" instance=ExtResource("2_ykrsh")]
 
 [node name="Table" type="Node2D" parent="GameManager" node_paths=PackedStringArray("player_areas")]
 script = ExtResource("3_ykrsh")

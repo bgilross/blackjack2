@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://cc20svuw2fjw7"]
+[gd_scene load_steps=6 format=3 uid="uid://cc20svuw2fjw7"]
 
 [ext_resource type="Script" uid="uid://bh0dtupqhjs3c" path="res://game_manager.gd" id="1_2nbpf"]
 [ext_resource type="Texture2D" uid="uid://bj5xigdm42cst" path="res://Background.png" id="1_64k4p"]
 [ext_resource type="Script" uid="uid://6vctmi2b5db8" path="res://ui_manager.gd" id="2_f4j51"]
 [ext_resource type="PackedScene" uid="uid://bmqvq30sk46d1" path="res://seat.tscn" id="4_f4j51"]
+[ext_resource type="Script" uid="uid://ckter45rs8nl0" path="res://table.gd" id="4_nhswp"]
 
 [node name="GameScreen" type="Control"]
 layout_mode = 3
@@ -115,7 +116,7 @@ grow_vertical = 2
 texture = ExtResource("1_64k4p")
 stretch_mode = 6
 
-[node name="Table" type="GridContainer" parent="."]
+[node name="Table" type="GridContainer" parent="." node_paths=PackedStringArray("player_areas")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -123,6 +124,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 columns = 3
+script = ExtResource("4_nhswp")
+player_areas = [NodePath("Seat1"), NodePath("Seat2"), NodePath("Seat3"), NodePath("Seat4"), NodePath("Seat5"), NodePath("Seat6"), NodePath("Seat7"), NodePath("DealerSeat")]
 
 [node name="Seat7" parent="Table" instance=ExtResource("4_f4j51")]
 layout_mode = 2
@@ -142,7 +145,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="DeckPos" type="Marker2D" parent="Table/DeckArea"]
-position = Vector2(166, 173)
+position = Vector2(154, 129)
 scale = Vector2(1.35027, 1.36508)
 
 [node name="Seat2" parent="Table" instance=ExtResource("4_f4j51")]
@@ -156,3 +159,5 @@ layout_mode = 2
 
 [node name="Seat3" parent="Table" instance=ExtResource("4_f4j51")]
 layout_mode = 2
+
+[node name="Animation layer" type="Node2D" parent="."]

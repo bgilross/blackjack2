@@ -1,4 +1,4 @@
-extends Node2D
+extends GridContainer
 
 signal table_setup_complete
 
@@ -11,8 +11,9 @@ const FLIP_DELAY = .4
 const CARD_SCENE = preload("res://card.tscn")
 
 @export var player_areas: Array[Control]
-@onready var deck_marker: Node2D = $DeckMarker
-@onready var spawn_node: Node2D = $SpawnPos
+@onready var deck_marker: Node2D = $DeckArea/DeckPos
+@onready var spawn_node: Node2D = $"../SpawnPos"
+@onready var animation_layer: Node2D = $"../Animation layer"
 
 var visual_deck_nodes: Array = []
 
@@ -32,7 +33,8 @@ func animate_deal_card(seat_index: int, card_data: CardData, is_face_up: bool = 
 	card_to_deal.setup(card_data)
 	var target_area = player_areas[seat_index]
 	var hand_container = target_area.get_hand_container()
-	var target_global_position = hand_container.global_position # Get the world position
+	var center_marker = target_area.get_center_marker()
+	var target_global_position = center_marker.global_position # Get the world position
 	var move_tween = _create_move_tween(card_to_deal, target_global_position, MOVE_DURATION)
 	if is_face_up:
 		await get_tree().create_timer(move_tween.get_total_elapsed_time() * FLIP_DELAY).timeout
@@ -44,7 +46,7 @@ func animate_deal_card(seat_index: int, card_data: CardData, is_face_up: bool = 
 	
 func animate_stack_in_deck(card: Control, deck_marker: Node2D, index: int) -> Tween:
 	# Calculate the final position with a slight vertical offset for the stack effect
-	var target_pos = deck_marker.position + Vector2(0, index * -STACK_OFFSET)
+	var target_pos = deck_marker.global_position + Vector2(0, index * -STACK_OFFSET)
 	var delay = index * INITIAL_DEAL_DELAY
 	var tween = card.create_tween()		
 	# The properties will animate in parallel
@@ -78,9 +80,9 @@ func setup_visual_deck(card_count: int):
 	clear_deck()
 	for i in range(card_count):
 		var card: Control = CARD_SCENE.instantiate()
-		add_child(card)
+		animation_layer.add_child(card)
 		card.set_face_down()
-		card.position = spawn_node.position
+		#card.global_position = spawn_node.position
 		animate_stack_in_deck(card, deck_marker, i)
 		visual_deck_nodes.append(card)
 		
@@ -101,12 +103,15 @@ func setup_player_areas(players_data: Array):
 		
 		# Make it visible and set its name
 		target_area.visible = true
+		target_area.player_score_label.visible = true
+		target_area.hand_score_label.visible = true
 		target_area.setup(player.name) # Assumes PlayerArea.gd has a setup() function
 		
 func setup_table(players_data: Array):
-	hide_table()	
+	#hide_table()	
 	setup_player_areas(players_data)
 	await setup_visual_deck(52)
+	await get_tree().create_timer(FLIP_DELAY * 3.5).timeout
 	table_setup_complete.emit()
 	
 
