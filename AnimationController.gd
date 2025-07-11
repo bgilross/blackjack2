@@ -8,6 +8,7 @@ const STACK_OFFSET = 0.5 # Pixels between stacked cards to give a 3D look
 const FLIP_DURATION = .15 # How long one half of the flip takes
 
 
+
 func animate_flip(card: Node2D) -> Tween:
 	var tween = card.create_tween()
 	# Make the animation sequential (scale down, then callback, then scale up)

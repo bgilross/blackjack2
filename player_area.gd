@@ -2,7 +2,7 @@ extends Control
 
 @onready var player_score_label: Label = $PlayerScoreLabel
 @onready var hand_score_label: Label = $HandScoreLabel
-@onready var hand_container: Control = $HandContainer
+@onready var hand_container: Control = $HandSizeTarget/HandContainer
 
 var player_name: String
 var current_score

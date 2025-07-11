@@ -20,6 +20,11 @@ func _ready() -> void:
 	deal_button.pressed.connect(_on_DealButton_pressed)
 	hit_button.pressed.connect(_on_HitButton_pressed)
 	stand_button.pressed.connect(_on_StandButton_pressed)
+	setup_start()
+
+func setup_start():
+	game_ui.visible = false
+	start_menu.visible = true
 	
 func _on_StartButton_pressed():
 	var player_count = _get_player_count()
@@ -47,7 +52,7 @@ func hide_start_menu():
 	start_menu.visible = false
 	
 func enter_round_start():
-	start_menu.visibile = false
+	start_menu.visible = false
 	stand_button.visible = false
 	hit_button.visible = false
 	deal_button.visible = true

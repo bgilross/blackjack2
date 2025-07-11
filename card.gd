@@ -1,14 +1,24 @@
-extends Node2D
+extends Control
 
-@onready var face_texture: Sprite2D = $FaceSprite
-@onready var back_texture: Sprite2D = $BackSprite
+@onready var face_texture: TextureRect = $FaceSprite
+@onready var back_texture: TextureRect = $BackSprite
 
 var suit: String
 var rank: String
+var value: int
 var is_face_up: bool = false
 
 func _ready():
 	back_texture.texture = preload("res://CardImages/CardBack.png")
+
+func setup(card_data):
+	print("card data is;", card_data)
+	suit = card_data.suit
+	rank = card_data.rank
+	value = card_data.value
+	face_texture.texture = load("res://CardImages/%s_of_%s.png" % [rank, suit])
+	_update_visuals()
+	pass
 
 func initialize(_suit: String, _rank: String) -> void:
 	self.suit = _suit

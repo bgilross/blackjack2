@@ -1,6 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://ce0k02uyc8mn5"]
-
-[ext_resource type="PackedScene" uid="uid://cijgwfn8jpjkh" path="res://card.tscn" id="1_ocedv"]
+[gd_scene format=3 uid="uid://ce0k02uyc8mn5"]
 
 [node name="PlayerArea" type="Control"]
 layout_mode = 3
@@ -28,8 +26,6 @@ offset_left = 45.0
 offset_top = 46.0
 offset_right = 110.0
 offset_bottom = 46.0
-
-[node name="Card" parent="Container/HandContainer" instance=ExtResource("1_ocedv")]
 
 [node name="HandScoreLabel" type="Label" parent="Container"]
 layout_mode = 2

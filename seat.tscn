@@ -1,0 +1,50 @@
+[gd_scene load_steps=3 format=3 uid="uid://bmqvq30sk46d1"]
+
+[ext_resource type="LabelSettings" uid="uid://c5ycfya34bm71" path="res://big_label_text.tres" id="1_bn7dt"]
+[ext_resource type="PackedScene" uid="uid://cijgwfn8jpjkh" path="res://card.tscn" id="2_prdfg"]
+
+[node name="Seat7" type="VBoxContainer"]
+custom_minimum_size = Vector2(160, 220)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="NameScoreLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Name: 0"
+label_settings = ExtResource("1_bn7dt")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HandArea" type="Control" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HandContainer" type="Control" parent="HandArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1, 0.994946)
+
+[node name="Card" parent="HandArea/HandContainer" instance=ExtResource("2_prdfg")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -95.0
+offset_right = 70.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HandScoreLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Hand: 0"
+label_settings = ExtResource("1_bn7dt")
+horizontal_alignment = 1
+vertical_alignment = 1

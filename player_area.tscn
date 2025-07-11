@@ -8,7 +8,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_left = 1048.0
 offset_top = 904.0
-offset_right = 1088.0
+offset_right = 1093.68
 offset_bottom = 944.0
 script = ExtResource("1_0v62v")
 
@@ -21,15 +21,6 @@ offset_bottom = 119.293
 scale = Vector2(3.32441, 3.32441)
 text = "Name: 0"
 
-[node name="HandContainer" type="Control" parent="."]
-layout_mode = 2
-anchors_preset = 0
-offset_left = -7.61682
-offset_top = -41.4103
-offset_right = 57.3832
-offset_bottom = -41.4103
-script = ExtResource("2_66asn")
-
 [node name="HandScoreLabel" type="Label" parent="."]
 layout_mode = 2
 offset_left = -95.4714
@@ -38,3 +29,25 @@ offset_right = -30.4714
 offset_bottom = -217.219
 scale = Vector2(3.2606, 3.27746)
 text = "Hand: 0"
+
+[node name="HandSizeTarget" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -287.0
+offset_top = -173.0
+offset_right = -287.0
+offset_bottom = -173.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(14.8631, 6.90424)
+
+[node name="HandContainer" type="Control" parent="HandSizeTarget"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_66asn")
