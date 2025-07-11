@@ -20,23 +20,13 @@ func clear_hand():
 func setup(plr_name: String):
 	player_name = plr_name # Set the Node's own name for easier debugging in the scene tree
 	name = plr_name
-	update_display(0, 0, false)
-	
-func add_card(card_instance: Node2D):
-	hand_container.add_child(card_instance)
-	hand_container.update_layout()	
-
-func update_score(score: int):
-	update_display(score, current_hand_value, false)
-func update_hand_value(hand_value: int, busted: bool = is_busted):
-	if busted: is_busted = true
-	update_display(current_score, hand_value, is_busted)	
+	update_display(0, 0, false)	
 
 func update_display(score: int, hand_value: int, busted: bool = is_busted) -> void:
 	player_score_label.text = player_name + ": " + str(score) 
 	if busted:
 		is_busted = true
-		hand_score_label.text = "BUST"
+		hand_score_label.text = "BUST " + str(hand_value)
 		hand_score_label.modulate = Color.FIREBRICK
 	else:
 		hand_score_label.text =  "Hand: " + str(hand_value)

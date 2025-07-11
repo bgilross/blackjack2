@@ -36,8 +36,6 @@ func clear_all():
 	players = []
 	table.clear_all()
 	
-
-
 func _ready() -> void:	
 	ui_manager.start_button_pressed.connect(_on_start_game)
 	table.table_setup_complete.connect(_on_table_setup_complete)
@@ -91,12 +89,15 @@ func enter_turn_phase():
 
 func enter_round_over():
 	for player in players:
-		update_seat_hand_value(player)
-		if !player.is_busted:
+		update_player_display(player)
+		if !player.is_busted:			
 			table.reveal_hand(player.seat_index)
+			var new_score = player.score + 1
+			player.score = new_score
+		update_player_display(player)
 	ui_manager.enter_round_over()
 
-func resolve_turn(player):
+func resolve_turn(player: PlayerData):
 	if player.name == "Dealer":
 		await enter_dealer_turn(player)
 	elif player.is_ai:
@@ -105,34 +106,34 @@ func resolve_turn(player):
 		await enter_player_turn(player)
 	else: print("error no player turn to go to? or something?")
 	
-func enter_player_turn(player):
+func enter_player_turn(player: PlayerData):
 	ui_manager.enter_player_turn()
 	await self.player_turn_finished
 		
-func enter_ai_turn(player):
+func enter_ai_turn(player: PlayerData):
 	await ai_turn_logic(player)	
 
-func ai_turn_logic(player):
+func ai_turn_logic(player: PlayerData):
 		while player.hand_value < 17 and !player.is_busted:
 			await deal_card(player, true)
 			if player.hand_value > 21:
 				#player busts.....
 				player.is_busted = true
 				await table.reveal_hand(player.seat_index)
-				table.get_seat(player.seat_index).update_hand_value(player.score, true)
+				update_player_display(player)
 				#turn is over so return?
 				await pause()
 				return
 			await pause()
 			
-func enter_dealer_turn(player):
+func enter_dealer_turn(player: PlayerData):
 	await ai_turn_logic(player)
 	
 func _deal_hands():
 	#clear previous hand value scores and hand arrays...
 	for player in players:
-		player.hand.clear()
-		player.score
+		player.reset_for_new_round()
+		update_player_display(player)
 	print("dealing for # (players.size())", players.size())
 	print("dealing in this order: ", players)
 	for player in players:
@@ -143,28 +144,29 @@ func _deal_hands():
 	for player in players:
 		await deal_card(player, true)
 	
-func deal_card(player, flip_face_up: bool = false):
+func deal_card(player: PlayerData, flip_face_up: bool = false):
 	if deck.is_empty(): return
 	var card_data = deck.pop_front()
 	card_data.face_up = flip_face_up
 	player.hand.append(card_data)
+	player.hand_value = calculate_hand_value(player)	
 	await table.animate_deal_card(player.seat_index, card_data, flip_face_up)
 	#calculating the visible card score only here, simply to keep Hand Scores updated
 	if flip_face_up:
-		var target_seat = table.get_seat(player.seat_index)
 		var visible_hand_value = calculate_hand_value(player, flip_face_up)
-		target_seat.update_hand_value(visible_hand_value)
 		player.visible_hand_value = visible_hand_value
-		
+		update_player_display(player, true)
 	var hand_value = calculate_hand_value(player)
 	player.hand_value = hand_value
 
-func update_seat_hand_value(player):
+func update_player_display(player: PlayerData, visible_only: bool = false):
 	var target_seat = table.get_seat(player.seat_index)
-	var current_hand_value = calculate_hand_value(player)
-	print("updating ", player, " seat hand value to ", current_hand_value)
-	target_seat.update_hand_value(current_hand_value)
-	
+	if target_seat:
+		if !visible_only:
+			target_seat.update_display(player.score, player.hand_value, player.is_busted)
+		elif visible_only:
+			target_seat.update_display(player.score, player.visible_hand_value, player.is_busted)
+
 func _on_table_setup_complete():
 	#tell the UI to get allow the deal button/ whatever will start round to be allowed.
 	ui_manager.enter_round_start()
@@ -178,7 +180,7 @@ func _on_start_game(ai_players: int):
 	create_deck()
 	shuffle_deck()
 	
-func calculate_hand_value(player, visible_only: bool = false) -> int:
+func calculate_hand_value(player: PlayerData, visible_only: bool = false) -> int:
 	var total = 0
 	var ace_count = 0
 	for card in player.hand:	
@@ -207,30 +209,9 @@ func shuffle_deck():
 
 func _create_player_list(num_ai_to_select: int):
 	players.clear()
-	# A. Always add the human player.
-	players.append({
-		"name": "Player",
-		"seat_index": HUMAN_SEAT_INDEX,
-		"hand": [],
-		"hand_value": 0,
-		"visible_hand_value": 0,
-		"score": 0,
-		"is_ai": false,
-		"is_busted": false
-	})
-	# B. Always add the dealer.
-	players.append({
-		"name": "Dealer",
-		"seat_index": DEALER_SEAT_INDEX,
-		"hand": [],
-		"hand_value": 0,
-		"visible_hand_value": 0,
-		"score": 0,
-		"is_ai": true,
-		"is_busted": false
-	})	
 	var selected_ai_indices = _select_ai_seats(num_ai_to_select)
-
+	players.append(PlayerData.new("Player", HUMAN_SEAT_INDEX, false))
+	players.append(PlayerData.new("Dealer", DEALER_SEAT_INDEX, true))
 	for i in range(selected_ai_indices.size()):
 		var seat_idx = selected_ai_indices[i]		
 		# Find the AI's "official" name by looking up its seat index.
@@ -239,19 +220,8 @@ func _create_player_list(num_ai_to_select: int):
 			if AI_SEATS[key] == seat_idx:
 				ai_name = key
 				break
-
-		players.append({
-			"name": ai_name,
-			"seat_index": seat_idx,
-			"hand": [],
-			"hand_value": 0,
-			"visible_hand_value": 0,
-			"score": 0,
-			"is_ai": true,
-			"is_busted": false
-		})
+		players.append(PlayerData.new(ai_name, seat_idx, true))
 	players.sort_custom(func(a, b): return a.seat_index < b.seat_index)
-	
 	print("Active players for this round (in table order):")
 	for p in players:
 		print(p.name, " at Seat", p.seat_index)

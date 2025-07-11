@@ -27,7 +27,7 @@ func setup_start():
 	start_menu.visible = true
 	
 func _on_StartButton_pressed():
-	var player_count = _get_player_count()
+	var player_count = player_count_dropdown.get_item_text(player_count_dropdown.selected).to_int()
 	start_button_pressed.emit(player_count)
 	
 func _on_DealButton_pressed():
@@ -39,12 +39,6 @@ func _on_HitButton_pressed():
 func _on_StandButton_pressed():
 	stand_button_pressed.emit()
 	
-func _get_player_count():
-	var selected_id = player_count_dropdown.get_selected_id()
-	var selected_index = player_count_dropdown.get_item_index(selected_id)
-	var player_count = player_count_dropdown.get_item_text(selected_index)
-	var player_count_int = player_count.to_int()
-	return player_count_int
 	
 func enter_round_over():
 	start_menu.visible = true

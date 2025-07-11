@@ -107,7 +107,7 @@ func setup_visual_deck(card_count: int):
 func hide_table():
 	for area in player_areas:
 		area.visible = false
-		
+
 func setup_player_areas(players_data: Array):
 	print("table is setting up player areas: ", players_data)
 	print("player area array is: ", player_areas)
@@ -130,11 +130,7 @@ func setup_table(players_data: Array):
 	await setup_visual_deck(52)
 	await get_tree().create_timer(FLIP_DELAY * 3.5).timeout
 	table_setup_complete.emit()
-	
-func update_player_score(player_index: int, new_score: int, hand_score: int):
-	var target_player = player_areas[player_index]
-	target_player.update_score(new_score, hand_score)
-	
+
 func add_card_to_hand(player_index: int, card_instance: Node):
 	var target_player = player_areas[player_index]
 	target_player.add_card(card_instance)
