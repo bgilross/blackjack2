@@ -8,6 +8,14 @@ extends VBoxContainer
 var player_name: String
 var current_score: int = 0
 var current_hand_value: int = 0
+var is_busted: bool = false
+
+func clear_hand():
+	current_hand_value = 0
+	is_busted = false
+	for child in hand_container.get_children():
+		if not child is Marker2D:
+			child.queue_free()
 
 func setup(plr_name: String):
 	player_name = plr_name # Set the Node's own name for easier debugging in the scene tree
@@ -20,12 +28,14 @@ func add_card(card_instance: Node2D):
 
 func update_score(score: int):
 	update_display(score, current_hand_value, false)
-func update_hand_value(hand_value: int, is_busted: bool = false):
+func update_hand_value(hand_value: int, busted: bool = is_busted):
+	if busted: is_busted = true
 	update_display(current_score, hand_value, is_busted)	
 
-func update_display(score: int, hand_value: int, is_busted: bool) -> void:
+func update_display(score: int, hand_value: int, busted: bool = is_busted) -> void:
 	player_score_label.text = player_name + ": " + str(score) 
-	if is_busted:
+	if busted:
+		is_busted = true
 		hand_score_label.text = "BUST"
 		hand_score_label.modulate = Color.FIREBRICK
 	else:

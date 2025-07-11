@@ -26,11 +26,16 @@ const DEALER_SEAT_INDEX: int = 7 #or -1?
 const DELAY_TIME: int = .6
 
 var deck: Array = []
-var dealer_hand: Dictionary = {"hand": [], "score": 0}
 var current_turn_index: int = -1
 var players: Array = []
 @onready var ui_manager = $UIManager
 @onready var table = $Table
+
+func clear_all():
+	deck = []
+	players = []
+	table.clear_all()
+	
 
 
 func _ready() -> void:	
@@ -40,11 +45,15 @@ func _ready() -> void:
 	ui_manager.hit_button_pressed.connect(_on_hit)
 	ui_manager.stand_button_pressed.connect(_on_stand)
 	#
-	
+
+func find_player(player_name: String = "Player"):
+	for player in players:
+		if player.name == player_name:
+			print("found player: ", player)
+			return player
+		
 func _on_hit():
-	var player = players.find(func(p): return p.name == "Player")
-	if not player or player.is_busted: return
-	
+	var player = find_player()	
 	await deal_card(player, true)
 	if player.hand_value > 21:
 		player.is_busted = true
@@ -72,16 +81,20 @@ func enter_turn_phase():
 	print("entering turn phase.")
 	ui_manager.enter_non_player_turn()
 	for player in players:
+		table.set_active_turn(player.seat_index, true)
 		print("in player for loop, current player is: ", player)
 		await resolve_turn(player)
+		table.set_active_turn(player.seat_index, false)
 	#technically any player/AI blackjacks should be resolved immediately here, as well as maybe dealer blackjack check if none have it? but I'm going to wait for now.
 	#find the first players/AIs turn and start it up
-	#enter_round_over()
+	enter_round_over()
 
 func enter_round_over():
 	for player in players:
+		update_seat_hand_value(player)
 		if !player.is_busted:
 			table.reveal_hand(player.seat_index)
+	ui_manager.enter_round_over()
 
 func resolve_turn(player):
 	if player.name == "Dealer":
@@ -97,8 +110,7 @@ func enter_player_turn(player):
 	await self.player_turn_finished
 		
 func enter_ai_turn(player):
-	ai_turn_logic(player)
-	
+	await ai_turn_logic(player)	
 
 func ai_turn_logic(player):
 		while player.hand_value < 17 and !player.is_busted:
@@ -114,7 +126,7 @@ func ai_turn_logic(player):
 			await pause()
 			
 func enter_dealer_turn(player):
-	ai_turn_logic(player)
+	await ai_turn_logic(player)
 	
 func _deal_hands():
 	#clear previous hand value scores and hand arrays...
@@ -130,8 +142,7 @@ func _deal_hands():
 			await deal_card(player)
 	for player in players:
 		await deal_card(player, true)
-		
-
+	
 func deal_card(player, flip_face_up: bool = false):
 	if deck.is_empty(): return
 	var card_data = deck.pop_front()
@@ -147,14 +158,21 @@ func deal_card(player, flip_face_up: bool = false):
 		
 	var hand_value = calculate_hand_value(player)
 	player.hand_value = hand_value
+
+func update_seat_hand_value(player):
+	var target_seat = table.get_seat(player.seat_index)
+	var current_hand_value = calculate_hand_value(player)
+	print("updating ", player, " seat hand value to ", current_hand_value)
+	target_seat.update_hand_value(current_hand_value)
 	
 func _on_table_setup_complete():
 	#tell the UI to get allow the deal button/ whatever will start round to be allowed.
 	ui_manager.enter_round_start()
 	#waiting for deal button to be pressed for now	
-		
+
 func _on_start_game(ai_players: int):	
 	ui_manager.enter_setup()
+	clear_all()
 	_create_player_list(ai_players)
 	table.setup_table(players)
 	create_deck()
@@ -166,7 +184,7 @@ func calculate_hand_value(player, visible_only: bool = false) -> int:
 	for card in player.hand:	
 		if visible_only and !card.face_up: continue
 		total += card.value
-		if card.rank == "ace":
+		if card.rank == "Ace":
 			ace_count += 1
 	while total > 21 and ace_count > 0:
 		total -= 10

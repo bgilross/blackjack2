@@ -17,6 +17,14 @@ const CARD_SCENE = preload("res://card.tscn")
 
 var visual_deck_nodes: Array = []
 
+func clear_all():
+	clear_deck()
+	for player in player_areas:
+		player.clear_hand()
+	
+func set_active_turn(player_seat_index: int, is_active: bool):
+	player_areas[player_seat_index].set_active_turn(is_active)
+
 func animate_flip(card: Control) -> Tween:
 	var tween = card.create_tween()
 	tween.set_parallel(false) 
@@ -57,16 +65,13 @@ func animate_stack_in_deck(card: Control, deck_marker: Node2D, index: int) -> Tw
 	
 	return tween
 
+#should mayhbe rename to include GLOBAL
 func _create_move_tween(node_to_move: Control, target_global_position: Vector2, duration: float) -> Tween:
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_OUT)
-	
-	# --- THE FIX ---
-	# Tween the node's global_position, not its local position.
 	tween.tween_property(node_to_move, "global_position", target_global_position, duration)
-	
 	return tween
 	
 func reveal_hand(seat_index: int):
@@ -81,9 +86,12 @@ func reveal_hand(seat_index: int):
 	if not first_card_node.is_face_up:
 		await animate_flip(first_card_node)
 
-func clear_deck():
-	for card in deck_marker.get_children():
+func clear_animation_layer():
+	for card in animation_layer.get_children():
 		card.queue_free()
+		
+func clear_deck():
+	clear_animation_layer() #need a better way to clear card nodes in deck
 	visual_deck_nodes.clear()
 	
 func setup_visual_deck(card_count: int):
@@ -95,7 +103,6 @@ func setup_visual_deck(card_count: int):
 		#card.global_position = spawn_node.position
 		animate_stack_in_deck(card, deck_marker, i)
 		visual_deck_nodes.append(card)
-		
 	
 func hide_table():
 	for area in player_areas:
@@ -124,7 +131,6 @@ func setup_table(players_data: Array):
 	await get_tree().create_timer(FLIP_DELAY * 3.5).timeout
 	table_setup_complete.emit()
 	
-
 func update_player_score(player_index: int, new_score: int, hand_score: int):
 	var target_player = player_areas[player_index]
 	target_player.update_score(new_score, hand_score)
@@ -135,19 +141,8 @@ func add_card_to_hand(player_index: int, card_instance: Node):
 	
 func clear_all_hands():
 	for area in player_areas:
-		if area.visible:
-			area.clear_hand() # Assumes PlayerArea has a clear_hand() func
+		area.clear_hand() # Assumes PlayerArea has a clear_hand() func
 	
 func get_seat(index: int) -> VBoxContainer:
 	# ind 0 should be seat 1, ind 7 should be last seat AKA Dealer seat...
 	return player_areas[index] # Note: This assumes simple mapping. A more robust way might use player IDs.
-
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass

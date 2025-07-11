@@ -46,6 +46,10 @@ func _get_player_count():
 	var player_count_int = player_count.to_int()
 	return player_count_int
 	
+func enter_round_over():
+	start_menu.visible = true
+	game_ui.visible = false
+	
 func enter_round_start():
 	#off
 	start_menu.visible = false
