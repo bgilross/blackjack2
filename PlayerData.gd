@@ -9,6 +9,7 @@ var hand_value: int = 0
 var visible_hand_value: int = 0
 var score: int = 0 # This is the persistent win count
 var is_busted: bool = false
+var is_winner: bool = false
 
 # The constructor. Takes the essential info to create a player.
 func _init(_name: String, _seat_index: int, _is_ai: bool):
@@ -23,3 +24,4 @@ func reset_for_new_round():
 	hand_value = 0
 	visible_hand_value = 0
 	is_busted = false
+	is_winner = false

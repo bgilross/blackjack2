@@ -55,13 +55,9 @@ func _on_hit():
 	await deal_card(player, true)
 	if player.hand_value > 21:
 		player.is_busted = true
-		table.get_seat(player.seat_index).update_hand_value(player.hand_value, true)
-		ui_manager.enter_non_player_turn() # Hide Hit/Stand buttons
-
-		# --- NEW LINE ---
-		# Tell the table to perform the visual action for the player
+		update_player_display(player)
+		ui_manager.enter_non_player_turn()
 		await table.reveal_hand(player.seat_index)
-		# --- END NEW LINE ---
 		player_turn_finished.emit()
 	
 func pause():
@@ -74,29 +70,46 @@ func _on_stand():
 func _on_deal():
 	await _deal_hands()
 	enter_turn_phase()
+	
+func set_winner(player: PlayerData):
+		player.is_winner = true
+		var new_score = player.score + 1
+		player.score = new_score
+		update_player_display(player)
 
 func enter_turn_phase():
 	print("entering turn phase.")
 	ui_manager.enter_non_player_turn()
 	for player in players:
+		if player.hand_value == 21:
+			table.reveal_hand(player.seat_index)
+	if find_player("Dealer").hand_value == 21:
+		enter_round_over()
+		return
+	for player in players:
 		table.set_active_turn(player.seat_index, true)
-		print("in player for loop, current player is: ", player)
 		await resolve_turn(player)
 		table.set_active_turn(player.seat_index, false)
-	#technically any player/AI blackjacks should be resolved immediately here, as well as maybe dealer blackjack check if none have it? but I'm going to wait for now.
-	#find the first players/AIs turn and start it up
 	enter_round_over()
 
 func enter_round_over():
 	for player in players:
 		update_player_display(player)
-		if !player.is_busted:			
+		if !player.is_busted and !player.is_winner:			
 			table.reveal_hand(player.seat_index)
-			var new_score = player.score + 1
-			player.score = new_score
+			var dealer = find_player("Dealer")
+			if dealer.is_busted:
+				set_winner(player)
+			elif !dealer.is_busted:
+				if player.score > dealer.score:
+					set_winner(player)
+				elif player.score == dealer.score:
+					#tie, player doesn't get a point, but would get bet back once that's implemented.
+					pass
 		update_player_display(player)
+	
 	ui_manager.enter_round_over()
-
+	
 func resolve_turn(player: PlayerData):
 	if player.name == "Dealer":
 		await enter_dealer_turn(player)
@@ -161,11 +174,10 @@ func deal_card(player: PlayerData, flip_face_up: bool = false):
 
 func update_player_display(player: PlayerData, visible_only: bool = false):
 	var target_seat = table.get_seat(player.seat_index)
-	if target_seat:
-		if !visible_only:
-			target_seat.update_display(player.score, player.hand_value, player.is_busted)
-		elif visible_only:
-			target_seat.update_display(player.score, player.visible_hand_value, player.is_busted)
+	var hand_value = player.hand_value
+	if visible_only: hand_value = player.visible_hand_value
+	target_seat.update_display(player.score, hand_value, player.is_busted, player.is_winner)
+
 
 func _on_table_setup_complete():
 	#tell the UI to get allow the deal button/ whatever will start round to be allowed.

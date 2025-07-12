@@ -5,29 +5,24 @@ extends VBoxContainer
 @onready var hand_container: Control = $HandArea/HandContainer
 @onready var center_marker: Marker2D = $HandArea/HandContainer/CenterMarker
 
-var player_name: String
-var current_score: int = 0
-var current_hand_value: int = 0
-var is_busted: bool = false
-
 func clear_hand():
-	current_hand_value = 0
-	is_busted = false
 	for child in hand_container.get_children():
 		if not child is Marker2D:
 			child.queue_free()
 
 func setup(plr_name: String):
-	player_name = plr_name # Set the Node's own name for easier debugging in the scene tree
 	name = plr_name
 	update_display(0, 0, false)	
 
-func update_display(score: int, hand_value: int, busted: bool = is_busted) -> void:
-	player_score_label.text = player_name + ": " + str(score) 
+func update_display(score: int, hand_value: int, busted: bool, winner: bool = false) -> void:
+	player_score_label.text = name + ": " + str(score) 
 	if busted:
-		is_busted = true
 		hand_score_label.text = "BUST " + str(hand_value)
 		hand_score_label.modulate = Color.FIREBRICK
+		player_score_label.modulate = Color.FIREBRICK
+	elif winner:
+		hand_score_label.modulate = Color.AQUAMARINE
+		player_score_label.modulate = Color.WEB_GREEN		
 	else:
 		hand_score_label.text =  "Hand: " + str(hand_value)
 		hand_score_label.modulate = Color.WHITE
@@ -51,7 +46,6 @@ func set_active_turn(is_active: bool) -> void:
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
