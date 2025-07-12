@@ -195,3 +195,12 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="Animation layer" type="Node2D" parent="."]
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 544.0
+offset_top = 3.0
+offset_right = 584.0
+offset_bottom = 26.0
+text = "v 1.2
+"
