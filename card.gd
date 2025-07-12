@@ -16,7 +16,7 @@ func setup(card_data):
 	suit = card_data.suit
 	rank = card_data.rank
 	value = card_data.value
-	face_texture.texture = load("res://CardImages/%s_of_%s.png" % [rank, suit])
+	face_texture.texture = CardImageLoader.get_card_texture(rank, suit)
 	_update_visuals()
 	pass
 
