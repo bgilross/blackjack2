@@ -93,19 +93,28 @@ func enter_turn_phase():
 	enter_round_over()
 
 func enter_round_over():
+	print("in round over, players is: ", players)
 	for player in players:
+		print("current round over player: ", player)
+		print("player score:")
 		update_player_display(player)
-		if !player.is_busted and !player.is_winner:			
+		if !player.is_busted and !player.is_winner:		
+			print("player: ", player, "busted: ", player.is_busted, "inside not busted not winner loop")	
 			table.reveal_hand(player.seat_index)
 			var dealer = find_player("Dealer")
 			if dealer.is_busted:
+				print("player: ", player, "inside dealer is busted loop")
 				set_winner(player)
 			elif !dealer.is_busted:
-				if player.score > dealer.score:
+				print("player: ", player, "inside dealer is not busted loop")
+				if player.hand_value > dealer.hand_value:
+					print("player: ", player, "score is more than dealer")
 					set_winner(player)
-				elif player.score == dealer.score:
+				elif player.hand_value == dealer.hand_value:
+					print("player: ", player, "score is == to dealer")
 					#tie, player doesn't get a point, but would get bet back once that's implemented.
 					pass
+		print("player, ", player, "at the end of for loop")
 		update_player_display(player)
 	
 	ui_manager.enter_round_over()
@@ -142,11 +151,16 @@ func ai_turn_logic(player: PlayerData):
 func enter_dealer_turn(player: PlayerData):
 	await ai_turn_logic(player)
 	
+func reset_seat(player ):
+	var player_seat = table.get_seat(player.seat_index)
+	player_seat.clear_hand()
+	
 func _deal_hands():
 	#clear previous hand value scores and hand arrays...
 	for player in players:
 		player.reset_for_new_round()
 		update_player_display(player)
+		reset_seat(player)
 	print("dealing for # (players.size())", players.size())
 	print("dealing in this order: ", players)
 	for player in players:
@@ -162,7 +176,10 @@ func deal_card(player: PlayerData, flip_face_up: bool = false):
 	var card_data = deck.pop_front()
 	card_data.face_up = flip_face_up
 	player.hand.append(card_data)
+	print("deal cards is calculating hand value for player: ", player.name)
+	print("current hand value is: ", player.hand_value)
 	player.hand_value = calculate_hand_value(player)	
+	print("subsequent hand value is: ", player.hand_value)
 	await table.animate_deal_card(player.seat_index, card_data, flip_face_up)
 	#calculating the visible card score only here, simply to keep Hand Scores updated
 	if flip_face_up:
@@ -177,22 +194,24 @@ func update_player_display(player: PlayerData, visible_only: bool = false):
 	var hand_value = player.hand_value
 	if visible_only: hand_value = player.visible_hand_value
 	target_seat.update_display(player.score, hand_value, player.is_busted, player.is_winner)
-
-
+	
 func _on_table_setup_complete():
 	#tell the UI to get allow the deal button/ whatever will start round to be allowed.
 	ui_manager.enter_round_start()
 	#waiting for deal button to be pressed for now	
 
-func _on_start_game(ai_players: int):	
+func _on_start_game(ai_players: int, deck_count: int):	
 	ui_manager.enter_setup()
 	clear_all()
 	_create_player_list(ai_players)
-	table.setup_table(players)
-	create_deck()
+	table.setup_table(players, deck_count)
+	create_deck(deck_count)
 	shuffle_deck()
 	
 func calculate_hand_value(player: PlayerData, visible_only: bool = false) -> int:
+	print("calculating hand value for player: ", player.name)
+	print("current hand value: ", player.hand_value)
+	
 	var total = 0
 	var ace_count = 0
 	for card in player.hand:	
@@ -203,18 +222,20 @@ func calculate_hand_value(player: PlayerData, visible_only: bool = false) -> int
 	while total > 21 and ace_count > 0:
 		total -= 10
 		ace_count -= 1
+	print("returning this total: ", total)
 	return total
 	
-func create_deck():
+func create_deck(deck_count: int):
 	deck.clear()
 	var suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
 	var ranks = {
 		"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, 
 		"8": 8, "9": 9, "10": 10, "Jack": 10, "Queen": 10, "King": 10, "Ace": 11
 	}
-	for s in suits:
-		for r in ranks.keys():
-			deck.append(CardData.new(s, r, ranks[r]))
+	for i in deck_count:
+		for s in suits:
+			for r in ranks.keys():
+				deck.append(CardData.new(s, r, ranks[r]))
 
 func shuffle_deck():
 	deck.shuffle()

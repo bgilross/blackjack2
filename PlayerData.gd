@@ -20,8 +20,10 @@ func _init(_name: String, _seat_index: int, _is_ai: bool):
 # A method to handle resetting a player for a new round.
 # This moves logic from the Game_Manager INTO the PlayerData class.
 func reset_for_new_round():
+	print(name, "resetting for new round.")
 	hand.clear()
 	hand_value = 0
 	visible_hand_value = 0
 	is_busted = false
 	is_winner = false
+	print(name, "hand value: ", hand_value)

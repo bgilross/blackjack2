@@ -8,6 +8,7 @@ signal deal_button_pressed
 
 @onready var start_button: Button = $StartMenu/StartButton
 @onready var player_count_dropdown: OptionButton = $StartMenu/PlayerCount/PlayerCountOption
+@onready var deck_count_dropdown: OptionButton = $StartMenu/PlayerCount2/DeckCountOption
 @onready var table: GridContainer = $"../Table"
 @onready var start_menu: Control = $StartMenu
 @onready var game_ui: Control = $InGameUI
@@ -28,7 +29,8 @@ func setup_start():
 	
 func _on_StartButton_pressed():
 	var player_count = player_count_dropdown.get_item_text(player_count_dropdown.selected).to_int()
-	start_button_pressed.emit(player_count)
+	var deck_count = deck_count_dropdown.get_item_text(deck_count_dropdown.selected).to_int()
+	start_button_pressed.emit(player_count, deck_count)
 	
 func _on_DealButton_pressed():
 	deal_button_pressed.emit()	
@@ -39,10 +41,12 @@ func _on_HitButton_pressed():
 func _on_StandButton_pressed():
 	stand_button_pressed.emit()
 	
-	
 func enter_round_over():
-	start_menu.visible = true
-	game_ui.visible = false
+	start_menu.visible = false
+	game_ui.visible = true
+	stand_button.visible = false
+	hit_button.visible = false
+	deal_button.visible = true
 	
 func enter_round_start():
 	#off

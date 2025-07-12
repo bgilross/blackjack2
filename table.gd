@@ -124,10 +124,10 @@ func setup_player_areas(players_data: Array):
 		target_area.hand_score_label.visible = true
 		target_area.setup(player.name) # Assumes PlayerArea.gd has a setup() function
 		
-func setup_table(players_data: Array):
+func setup_table(players_data: Array, deck_count: int):
 	#hide_table()	
 	setup_player_areas(players_data)
-	await setup_visual_deck(52)
+	await setup_visual_deck(52 * deck_count)
 	await get_tree().create_timer(FLIP_DELAY * 3.5).timeout
 	table_setup_complete.emit()
 
