@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cijgwfn8jpjkh"]
+[gd_scene load_steps=5 format=3 uid="uid://cijgwfn8jpjkh"]
 
 [ext_resource type="Texture2D" uid="uid://bq5k0ehr5hew1" path="res://CardImages/CardBack.png" id="1_kikvd"]
 [ext_resource type="Script" uid="uid://drl1bso6fpeue" path="res://card.gd" id="1_rjlel"]
 [ext_resource type="Texture2D" uid="uid://cd2a0uyqk3lo0" path="res://CardImages/2_of_clubs.png" id="2_q5obu"]
+[ext_resource type="Texture2D" uid="uid://c8nhky1g2xjbf" path="res://CardImages/cards_sprite_sheet.png" id="4_e484p"]
 
 [node name="Card" type="TextureRect"]
 custom_minimum_size = Vector2(140, 190)
@@ -34,3 +35,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("1_kikvd")
 expand_mode = 1
+
+[node name="CardsSpriteSheet" type="Sprite2D" parent="."]
+position = Vector2(705, 374)
+texture = ExtResource("4_e484p")

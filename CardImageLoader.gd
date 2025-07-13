@@ -1,4 +1,4 @@
-extends Node
+extends Resource
 
 var card_textures = {}
 
@@ -11,8 +11,7 @@ func _ready():
 		for rank in ranks:
 			var key = "%s_of_%s" % [rank, suit]
 			var path = "res://CardImages/%s_of_%s.png" % [rank, suit]
-			var image = Image.load_from_file(path)
-			var texture = ImageTexture.create_from_image(image)
+			var texture = load(path)
 			if texture:
 				card_textures[key] = texture
 			else:
