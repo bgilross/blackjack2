@@ -9,16 +9,30 @@ var value: int
 var is_face_up: bool = false
 
 func _ready():
-	back_texture.texture = preload("res://CardImages/CardBack.png")
+	# Load the back texture directly
+	var back_tex = load("res://CardImages/CardBack.png")
+	if back_tex:
+		back_texture.texture = back_tex
+	else:
+		print("Failed to load card back texture")
 
 func setup(card_data):
-	print("card data is;", card_data)
+	print("card data is:", card_data)
 	suit = card_data.suit
 	rank = card_data.rank
 	value = card_data.value
-	face_texture.texture = CardImageLoader.get_card_texture(rank, suit)
+	
+	# Check if CardImageLoader is available
+	if CardImageLoader:
+		var tex = CardImageLoader.get_card_texture(rank, suit)
+		if tex:
+			face_texture.texture = tex
+		else:
+			print("Failed to load texture for " + rank + " of " + suit)
+	else:
+		print("CardImageLoader is not available")
+	
 	_update_visuals()
-	pass
 
 func initialize(_suit: String, _rank: String) -> void:
 	self.suit = _suit
