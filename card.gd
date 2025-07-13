@@ -17,21 +17,11 @@ func _ready():
 		print("Failed to load card back texture")
 
 func setup(card_data):
-	print("card data is:", card_data)
 	suit = card_data.suit
 	rank = card_data.rank
 	value = card_data.value
 	
-	# Check if CardImageLoader is available
-	if CardImageLoader:
-		var tex = CardImageLoader.get_card_texture(rank, suit)
-		if tex:
-			face_texture.texture = tex
-		else:
-			print("Failed to load texture for " + rank + " of " + suit)
-	else:
-		print("CardImageLoader is not available")
-	
+	face_texture.texture = load("res://CardImages/%s_of_%s.png" % [rank, suit])
 	_update_visuals()
 
 func initialize(_suit: String, _rank: String) -> void:
