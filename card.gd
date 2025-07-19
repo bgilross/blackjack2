@@ -11,10 +11,13 @@ var is_face_up: bool = false
 func _ready():
 	# Load the back texture directly
 	var back_tex = load("res://CardImages/CardBack.png")
+	var card_sheet = load("res://CardImages/card_sheet.svg")
 	if back_tex:
 		back_texture.texture = back_tex
 	else:
 		print("Failed to load card back texture")
+	if card_sheet:
+		face_texture.texture = card_sheet
 
 func setup(card_data):
 	suit = card_data.suit
